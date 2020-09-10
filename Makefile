@@ -1,5 +1,5 @@
 
-CPPFLAGS=-O3
+CPPFLAGS=-O3 -DLINUX
 
 all:	emu816
 

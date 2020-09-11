@@ -2,9 +2,6 @@
 
 Forked from https://github.com/andrew-jacobs/emu816
 
-The repository contains the source code for a simple 65C816 emulator for *nix 
-and CARIBOU RTOS.
-
 ## Building the library (*nix)
 
 ```

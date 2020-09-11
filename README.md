@@ -1,5 +1,7 @@
 # emu816 - A C++ based 65C816 Emulator
 
+Forked from https://github.com/andrew-jacobs/emu816
+
 The repository contains the source code for a simple 65C816 emulator for CARIBOU_RTOS.
 
 The major change since the last release has been the recoding of all the classes

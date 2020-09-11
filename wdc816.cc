@@ -42,3 +42,40 @@ char *wdc816::toHex(unsigned long value, unsigned int digits)
 	}
 	return (&(buffer[offset]));
 }
+
+// Return the low byte of a word
+wdc816::Byte wdc816::lo(Word value)
+{
+    return ((Byte) value);
+}
+
+// Return the high byte of a word
+wdc816::Byte wdc816::hi(Word value)
+{
+    return (lo(value >> 8));
+}
+
+// Convert the bank number into a address
+wdc816::Addr wdc816::bank(Byte b)
+{
+    return (b << 16);
+}
+
+// Combine two bytes into a word
+wdc816::Word wdc816::join(Byte l, Byte h)
+{
+    return (l | (h << 8));
+}
+
+// Combine a bank and an word into an address
+wdc816::Addr wdc816::join(Byte b, Word a)
+{
+    return (bank(b) | a);
+}
+
+// Swap the high and low bytes of a word
+wdc816::Word wdc816::swap(Word value)
+{
+    return ((value >> 8) | (value << 8));
+}
+

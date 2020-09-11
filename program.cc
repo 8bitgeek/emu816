@@ -39,18 +39,15 @@ using namespace std;
 
 bool trace = false;
 
+emu816 emulator;
+
+
 //==============================================================================
 
 // Initialise the emulator
-INLINE void setup()
+inline void setup()
 {
-	emu816::setMemory(MEM_MASK, RAM_SIZE, NULL);
-}
-
-// Execute instructions
-INLINE void loop()
-{
-	emu816::step();
+	emulator.setMemory(MEM_MASK, RAM_SIZE, NULL);
 }
 
 //==============================================================================
@@ -108,7 +105,7 @@ void load(char *filename)
 					unsigned long addr = toWord(line, offset);
 					count -= 3;
 					while (count-- > 0) {
-						emu816::setByte(addr++, toByte(line, offset));
+						emulator.setByte(addr++, toByte(line, offset));
 					}
 				}
 				else if (line[1] == '2') {
@@ -116,7 +113,7 @@ void load(char *filename)
 					unsigned long addr = toAddr(line, offset);
 					count -= 4;
 					while (count-- > 0) {
-						emu816::setByte(addr++, toByte(line, offset));
+						emulator.setByte(addr++, toByte(line, offset));
 					}
 				}
 			}
@@ -169,18 +166,17 @@ int main(int argc, char **argv)
 
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
 
-	emu816::reset(trace);
-	while (!emu816::isStopped ())
-		loop();
+	emulator.reset(trace);
+	emulator.run();
 
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
 
 	double secs = (end.tv_sec + end.tv_nsec / 1000000000.0)
 		    - (start.tv_sec + start.tv_nsec / 1000000000.0);
 
-	double speed = emu816::getCycles() / secs;
+	double speed = emulator.getCycles() / secs;
 
-	cout << endl << "Executed " << emu816::getCycles() << " in " << secs << " Secs";
+	cout << endl << "Executed " << emulator.getCycles() << " in " << secs << " Secs";
 	cout << endl << "Overall CPU Frequency = ";
 	if (speed < 1000.0)
 		cout << speed << " Hz";

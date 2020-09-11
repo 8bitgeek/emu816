@@ -21,21 +21,21 @@
 
 #include "mem816.h"
 
-mem816::Addr	mem816::memMask;
-mem816::Addr	mem816::ramSize;
-
-mem816::Byte   *mem816::pRAM;
-const mem816::Byte *mem816::pROM;
-
-//==============================================================================
-
 // Never used.
 mem816::mem816()
-{ }
+: memMask(0)
+, ramSize(0)
+, pRAM(NULL)
+, pROM(NULL)
+{ 
+}
 
 // Never used.
 mem816::~mem816()
-{ }
+{ 
+    if ( pRAM )
+        delete pRAM;
+}
 
 // Sets up the memory areas using a dynamically allocated array
 void mem816::setMemory(Addr memMask, Addr ramSize, const Byte *pROM)
@@ -50,4 +50,39 @@ void mem816::setMemory(Addr memMask, Addr ramSize, Byte *pRAM, const Byte *pROM)
 	mem816::ramSize = ramSize;
 	mem816::pRAM = pRAM;
 	mem816::pROM = pROM;
+}
+
+// Fetch a byte from memory
+wdc816::Byte mem816::getByte(Addr ea)
+{
+    if ((ea &= memMask) < ramSize)
+        return (pRAM[ea]);
+
+    return (pROM[ea - ramSize]);
+}
+
+// Fetch a word from memory
+wdc816::Word mem816::getWord(Addr ea)
+{
+        return (join(getByte(ea + 0), getByte(ea + 1)));
+}
+
+// Fetch a long address from memory
+wdc816::Addr mem816::getAddr(Addr ea)
+{
+    return (join(getByte(ea + 2), getWord(ea + 0)));
+}
+
+// Write a byte to memory
+void mem816::setByte(Addr ea, Byte data)
+{
+    if ((ea &= memMask) < ramSize)
+        pRAM[ea] = data;
+}
+
+// Write a word to memory
+void mem816::setWord(Addr ea, Word data)
+{
+        setByte(ea + 0, lo(data));
+        setByte(ea + 1, hi(data));
 }

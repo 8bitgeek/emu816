@@ -27,7 +27,7 @@ using namespace std;
 
 #include <string.h>
 #include <time.h>
-#include "emu816.h"
+#include <emu816.h>
 
 //==============================================================================
 // Memory Definitions

@@ -22,8 +22,7 @@
 #ifndef EMU816_H
 #define EMU816_H
 
-#include "mem816.h"
-
+#include <mem816.h>
 #include <stdlib.h>
 
 # define TRACE(MNEM)	{ if (trace) dump(MNEM, ea); }
@@ -36,7 +35,7 @@ class emu816 : public mem816
 {
     public:
         emu816(bool trace=false);
-        ~emu816();
+        virtual ~emu816();
 
         void reset(bool trace=false);
         void step();

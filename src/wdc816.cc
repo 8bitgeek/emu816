@@ -19,36 +19,63 @@
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
 
-#ifndef MEM816_H
-#define MEM816_H
+#include <wdc816.h>
 
-#include "wdc816.h"
+// Never used.
+wdc816::wdc816()
+{ }
 
-// The mem816 class defines a set of standard methods for defining and accessing
-// the emulated memory area.
+// Never used.
+wdc816::~wdc816()
+{ }
 
-class mem816 : public wdc816
+// Convert a value to a hex string
+char *wdc816::toHex(unsigned long value, unsigned int digits)
 {
-    public:
-        // Define the memory areas and sizes
-        void setMemory (Addr memMask, Addr ramSize, const Byte *pROM);
-        void setMemory (Addr memMask, Addr ramSize, Byte *pRAM, const Byte *pROM);
+	static char buffer[16];
+	unsigned int offset = sizeof(buffer);;
 
-        Byte getByte(Addr ea);
-        Word getWord(Addr ea);
-        Addr getAddr(Addr ea);
-        void setByte(Addr ea, Byte data);
-        void setWord(Addr ea, Word data);
+	buffer[--offset] = 0;
+	while (digits-- > 0) {
+		buffer[--offset] = "0123456789ABCDEF"[value & 0xf];
+		value >>= 4;
+	}
+	return (&(buffer[offset]));
+}
 
-    protected:
-        mem816();
-        ~mem816();
+// Return the low byte of a word
+wdc816::Byte wdc816::lo(Word value)
+{
+    return ((Byte) value);
+}
 
-    private:
-        Addr		memMask;		// The address mask pattern
-        Addr		ramSize;		// The amount of RAM
+// Return the high byte of a word
+wdc816::Byte wdc816::hi(Word value)
+{
+    return (lo(value >> 8));
+}
 
-        Byte	    *pRAM;			// Base of RAM memory array
-        const Byte  *pROM;			// Base of ROM memory array
-};
-#endif
+// Convert the bank number into a address
+wdc816::Addr wdc816::bank(Byte b)
+{
+    return (b << 16);
+}
+
+// Combine two bytes into a word
+wdc816::Word wdc816::join(Byte l, Byte h)
+{
+    return (l | (h << 8));
+}
+
+// Combine a bank and an word into an address
+wdc816::Addr wdc816::join(Byte b, Word a)
+{
+    return (bank(b) | a);
+}
+
+// Swap the high and low bytes of a word
+wdc816::Word wdc816::swap(Word value)
+{
+    return ((value >> 8) | (value << 8));
+}
+

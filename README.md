@@ -7,23 +7,29 @@ and CARIBOU RTOS.
 
 ## Building the library (*nix)
 
-$ cd src
-$ make
+```
+cd src
+make
+```
 
 ## Building the test app (*nix)
 
-$ cd test
-$ make
+```
+cd test
+make
+```
 
 ## Running the test app (*nix)
 
-$ ./emu816 simple.s28
+```
+./emu816 simple.s28
+```
 
 ## Implementing application memory model
 
 The following virtual methods are provided for application memory and I/O mapping.
 
-{
+```C++
         
         // FIXME - emu816 lib should not know about ROM/RAM and size.
         //         let's refactor this         
@@ -35,4 +41,4 @@ The following virtual methods are provided for application memory and I/O mappin
         virtual Addr getAddr(Addr ea);
         virtual void setByte(Addr ea, Byte data);
         virtual void setWord(Addr ea, Word data);
-}
+```

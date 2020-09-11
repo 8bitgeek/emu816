@@ -1,5 +1,6 @@
 
-CPPFLAGS=-O2 -DLINUX
+CPPFLAGS=-O2
+#CPPFLAGS=-ggdb
 
 all:	emu816
 

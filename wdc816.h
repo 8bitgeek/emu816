@@ -22,65 +22,44 @@
 #ifndef WDC816_H
 #define WDC816_H
 
-#ifdef CHIPKIT
-# define INLINE inline
-#else
-# define INLINE inline
-#endif
+#include <stddef.h>
+#include <stdint.h>
 
 // The wdc816 class defines common types for 8-, 16- and 24-bit data values and
 // a set of common functions for manipulating them.
 
 class wdc816
 {
-public:
-	// Common types for memory and register sizes
-	typedef unsigned char	Bit;
-	typedef unsigned char	Byte;
-	typedef unsigned short	Word;
-	typedef unsigned long	Addr;
+    public:
+        // Common types for memory and register sizes
+        typedef unsigned char	Bit;
+        typedef unsigned char	Byte;
+        typedef unsigned short	Word;
+        typedef unsigned long	Addr;
 
-	// Convert a value to a hex string.
-	static char *toHex(unsigned long value, unsigned int digits);
+        // Convert a value to a hex string.
+        char *toHex(unsigned long value, unsigned int digits);
 
-	// Return the low byte of a word
-	INLINE static Byte lo(Word value)
-	{
-		return ((Byte) value);
-	}
+        // Return the low byte of a word
+        Byte lo(Word value);
 
-	// Return the high byte of a word
-	INLINE static Byte hi(Word value)
-	{
-		return (lo(value >> 8));
-	}
+        // Return the high byte of a word
+        Byte hi(Word value);
 
-	// Convert the bank number into a address
-	INLINE static Addr bank(Byte b)
-	{
-		return (b << 16);
-	}
+        // Convert the bank number into a address
+        Addr bank(Byte b);
 
-	// Combine two bytes into a word
-	INLINE static Word join(Byte l, Byte h)
-	{
-		return (l | (h << 8));
-	}
+        // Combine two bytes into a word
+        Word join(Byte l, Byte h);
 
-	// Combine a bank and an word into an address
-	INLINE static Addr join(Byte b, Word a)
-	{
-		return (bank(b) | a);
-	}
+        // Combine a bank and an word into an address
+        Addr join(Byte b, Word a);
 
-	// Swap the high and low bytes of a word
-	INLINE static Word swap(Word value)
-	{
-		return ((value >> 8) | (value << 8));
-	}
+        // Swap the high and low bytes of a word
+        Word swap(Word value);
 
-protected:
-	wdc816();
-	~wdc816();
+    protected:
+        wdc816();
+        ~wdc816();
 };
 #endif

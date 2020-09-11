@@ -27,58 +27,28 @@
 // The mem816 class defines a set of standard methods for defining and accessing
 // the emulated memory area.
 
-class mem816 :
-	public wdc816
+class mem816 : public wdc816
 {
-public:
-	// Define the memory areas and sizes
-	static void setMemory (Addr memMask, Addr ramSize, const Byte *pROM);
-	static void setMemory (Addr memMask, Addr ramSize, Byte *pRAM, const Byte *pROM);
+    public:
+        // Define the memory areas and sizes
+        void setMemory (Addr memMask, Addr ramSize, const Byte *pROM);
+        void setMemory (Addr memMask, Addr ramSize, Byte *pRAM, const Byte *pROM);
 
-	// Fetch a byte from memory
-	INLINE static Byte getByte(Addr ea)
-	{
-		if ((ea &= memMask) < ramSize)
-			return (pRAM[ea]);
+        Byte getByte(Addr ea);
+        Word getWord(Addr ea);
+        Addr getAddr(Addr ea);
+        void setByte(Addr ea, Byte data);
+        void setWord(Addr ea, Word data);
 
-		return (pROM[ea - ramSize]);
-	}
+    protected:
+        mem816();
+        ~mem816();
 
-	// Fetch a word from memory
-	INLINE static Word getWord(Addr ea)
-	{
-			return (join(getByte(ea + 0), getByte(ea + 1)));
-	}
+    private:
+        Addr		memMask;		// The address mask pattern
+        Addr		ramSize;		// The amount of RAM
 
-	// Fetch a long address from memory
-	INLINE static Addr getAddr(Addr ea)
-	{
-		return (join(getByte(ea + 2), getWord(ea + 0)));
-	}
-
-	// Write a byte to memory
-	INLINE static void setByte(Addr ea, Byte data)
-	{
-		if ((ea &= memMask) < ramSize)
-			pRAM[ea] = data;
-	}
-
-	// Write a word to memory
-	INLINE static void setWord(Addr ea, Word data)
-	{
-			setByte(ea + 0, lo(data));
-			setByte(ea + 1, hi(data));
-	}
-
-protected:
-	mem816();
-	~mem816();
-
-private:
-	static Addr			memMask;		// The address mask pattern
-	static Addr			ramSize;		// The amount of RAM
-
-	static Byte		  *pRAM;			// Base of RAM memory array
-	static const Byte *pROM;			// Base of ROM memory array
+        Byte	    *pRAM;			// Base of RAM memory array
+        const Byte  *pROM;			// Base of ROM memory array
 };
 #endif

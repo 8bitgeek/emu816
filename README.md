@@ -1,4 +1,4 @@
-# emu816 - A C++ based 65C816 Emulator Library
+# libemu816 - A C++ based 65C816 Emulator Library
 
 Forked from https://github.com/andrew-jacobs/emu816
 

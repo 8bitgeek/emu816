@@ -18,15 +18,10 @@
 //
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
-
-#ifdef CHIPKIT
-# include "WProgram.h"
-#else
 # include <iostream>
 # include <string>
 
 using namespace std;
-#endif
 
 #include "emu816.h"
 
@@ -362,134 +357,6 @@ void emu816::step()
 // Debugging Utilities
 //------------------------------------------------------------------------------
 
-// The ChipKIT versions of the debugging functions output to the serial monitor
-// rather than standard output.
-
-#ifdef CHIPKIT
-// The current PC and opcode byte
-void emu816::show()
-{
-	Serial.print (toHex(pbr, 2));
-	Serial.print (':');
-	Serial.print (toHex(pc, 4));
-	Serial.print (' ');
-	Serial.print (toHex(getByte(join(pbr, pc)), 2));
-}
-
-// Display the operand bytes
-void emu816::bytes(unsigned int count)
-{
-	if (count > 0) {
-		Serial.print(' ');
-		Serial.print(toHex(getByte(bank(pbr) | (pc + 0)), 2));
-	}
-	else
-		Serial.print("   ");
-
-	if (count > 1) {
-		Serial.print(' ');
-		Serial.print(toHex(getByte(bank(pbr) | (pc + 1)), 2));
-	}
-	else
-		Serial.print("   ");
-
-	if (count > 2) {
-		Serial.print(' ');
-		Serial.print(toHex(getByte(bank(pbr) | (pc + 2)), 2));
-	}
-	else
-		Serial.print("   ");
-
-	Serial.print(' ');
-}
-
-// Display registers and top of stack
-void emu816::dump(const char *mnem, Addr ea)
-{
-	Serial.print(mnem);
-	Serial.print(" {");
-	Serial.print(toHex(ea, 4));
-	Serial.print('}');
-
-	Serial.print(" E=");
-	Serial.print(toHex(e, 1));
-	
-	Serial.print(" P=");
-	Serial.print(p.f_n ? 'N' : '.');
-	Serial.print(p.f_v ? 'V' : '.');
-	Serial.print(p.f_m ? 'M' : '.');
-	Serial.print(p.f_x ? 'X' : '.');
-	Serial.print(p.f_d ? 'D' : '.');
-	Serial.print(p.f_i ? 'I' : '.');
-	Serial.print(p.f_z ? 'Z' : '.');
-	Serial.print(p.f_c ? 'C' : '.');
-	
-	Serial.print(" A=");
-	if (e || p.f_m) {
-		Serial.print(toHex(hi(a.w), 2));
-		Serial.print('[');
-	}
-	else {
-		Serial.print('[');
-		Serial.print(toHex(hi(a.w), 2));
-	}
-	Serial.print(toHex(a.b, 2));
-	Serial.print(']');
-	
-	Serial.print(" X=");
-	if (e || p.f_x) {
-		Serial.print(toHex(hi(x.w), 2));
-		Serial.print('[');
-	}
-	else {
-		Serial.print('[');
-		Serial.print(toHex(hi(x.w), 2));
-	}
-	Serial.print(toHex(x.b, 2));
-	Serial.print(']');
-	
-	Serial.print(" Y=");
-	if (e || p.f_x) {
-		Serial.print(toHex(hi(y.w), 2));
-		Serial.print('[');
-	}
-	else {
-		Serial.print('[');
-		Serial.print(toHex(hi(y.w), 2));
-	}
-	Serial.print(toHex(y.b, 2));
-	Serial.print(']');
-	
-	Serial.print(" DP=");
-	Serial.print(toHex(dp.w, 4));
-	
-	Serial.print(" SP=");
-	if (e) {
-		Serial.print(toHex(hi(sp.w), 2));
-		Serial.print('[');
-	}
-	else {
-		Serial.print('[');
-		Serial.print(toHex(hi(sp.w), 2));
-	}
-	Serial.print(toHex(sp.b, 2));
-	Serial.print(']');
-	
-	Serial.print(" {");
-	Serial.print(' ');
-	Serial.print(toHex(getByte(sp.w + 1), 2));
-	Serial.print(' ');
-	Serial.print(toHex(getByte(sp.w + 2), 2));
-	Serial.print(' ');
-	Serial.print(toHex(getByte(sp.w + 3), 2));
-	Serial.print(' ');
-	Serial.print(toHex(getByte(sp.w + 4), 2));
-	Serial.print(" }");
-	
-	Serial.print(" DBR=");
-	Serial.print(toHex(dbr, 2));
-}
-#else
 // The current PC and opcode byte
 void emu816::show()
 {
@@ -570,4 +437,3 @@ void emu816::dump(const char *mnem, Addr ea)
 	cout << " }";
 	cout << " DBR=" << toHex(dbr, 2) << endl;
 }
-#endif

@@ -1,7 +1,6 @@
 # emu816 - A C++ based 65C816 Emulator
 
-The repository contains the source code for a simple 65C816 emulator for Windows,
-Linux and the embedded ChipKIT platform.
+The repository contains the source code for a simple 65C816 emulator for CARIBOU_RTOS.
 
 The major change since the last release has been the recoding of all the classes
 to make them static. This was done to increase the execution performance of the
@@ -13,8 +12,7 @@ cause the emulator to exit.
 
 ## Building
 
-The code is provided with a Visual Studio project for Windows and a Makefile for
-Linux plaforms.
+The code is provided with a Makefile for CARIBOU_RTOS plaforms.
 
 A (very) simple example built with my DEV65 assembler is provided in the examples
 folder. Use the following command to run it.

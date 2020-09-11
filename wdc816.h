@@ -22,11 +22,7 @@
 #ifndef WDC816_H
 #define WDC816_H
 
-#ifdef CHIPKIT
 # define INLINE inline
-#else
-# define INLINE inline
-#endif
 
 // The wdc816 class defines common types for 8-, 16- and 24-bit data values and
 // a set of common functions for manipulating them.

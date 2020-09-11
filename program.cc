@@ -26,13 +26,7 @@
 using namespace std;
 
 #include <string.h>
-
-#if defined(_WIN32) || defined (_WIN64)
-#include "Windows.h"
-#else
 #include <time.h>
-#endif
-
 #include "emu816.h"
 
 //==============================================================================
@@ -171,33 +165,18 @@ int main(int argc, char **argv)
 		return (1);
 	}
 
-#ifdef	WIN32
-	LARGE_INTEGER freq, start, end;
-
-	QueryPerformanceFrequency(&freq);
-	QueryPerformanceCounter(&start);
-
-	cin.unsetf(ios_base::skipws);
-#else
 	timespec start, end;
 
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-#endif
 
 	emu816::reset(trace);
 	while (!emu816::isStopped ())
 		loop();
 
-#ifdef	LINUX
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
 
 	double secs = (end.tv_sec + end.tv_nsec / 1000000000.0)
 		    - (start.tv_sec + start.tv_nsec / 1000000000.0);
-#else
-	QueryPerformanceCounter(&end);
-
-	double secs = (end.QuadPart - start.QuadPart) / (double) freq.QuadPart;
-#endif
 
 	double speed = emu816::getCycles() / secs;
 

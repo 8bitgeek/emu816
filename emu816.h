@@ -26,21 +26,10 @@
 
 #include <stdlib.h>
 
-#if 1
 # define TRACE(MNEM)	{ if (trace) dump(MNEM, ea); }
 # define BYTES(N)		{ if (trace) bytes(N); pc += N; }
 # define SHOWPC()		{ if (trace) show(); }
-# ifdef CHIPKIT
-# define ENDL()			{ Serial.println (); }
-# else
 # define ENDL()			{ if (trace) cout << endl; }
-# endif
-#else
-# define TRACE(MNEM)
-# define BYTES(N)		{ pc += N; }
-# define SHOWPC()
-# define ENDL()
-#endif
 
 // Defines the WDC 65C816 emulator. 
 class emu816 :

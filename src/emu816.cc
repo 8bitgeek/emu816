@@ -18,12 +18,12 @@
 //
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
-# include <iostream>
-# include <string>
+#include <iostream>
+#include <string>
+#include <emu816.h>
 
 using namespace std;
 
-#include "emu816.h"
 
 //==============================================================================
 

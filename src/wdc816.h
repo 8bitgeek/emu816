@@ -31,35 +31,26 @@
 class wdc816
 {
     public:
+
         // Common types for memory and register sizes
         typedef unsigned char	Bit;
         typedef unsigned char	Byte;
         typedef unsigned short	Word;
         typedef unsigned long	Addr;
 
-        // Convert a value to a hex string.
         char *toHex(unsigned long value, unsigned int digits);
 
-        // Return the low byte of a word
         Byte lo(Word value);
-
-        // Return the high byte of a word
         Byte hi(Word value);
-
-        // Convert the bank number into a address
         Addr bank(Byte b);
-
-        // Combine two bytes into a word
         Word join(Byte l, Byte h);
-
-        // Combine a bank and an word into an address
         Addr join(Byte b, Word a);
-
-        // Swap the high and low bytes of a word
         Word swap(Word value);
 
     protected:
+
         wdc816();
-        ~wdc816();
+        virtual ~wdc816();
+        
 };
 #endif

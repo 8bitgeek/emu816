@@ -1,24 +1,38 @@
-# emu816 - A C++ based 65C816 Emulator
+# emu816 - A C++ based 65C816 Emulator Library
 
 Forked from https://github.com/andrew-jacobs/emu816
 
-The repository contains the source code for a simple 65C816 emulator for CARIBOU_RTOS.
+The repository contains the source code for a simple 65C816 emulator for *nix 
+and CARIBOU RTOS.
 
-The major change since the last release has been the recoding of all the classes
-to make them static. This was done to increase the execution performance of the
-code. On my development laptop (AMD8 1.8GHz) it now runs at an emulated speed of
-around 225 MHz with full optimization.
+## Building the library (*nix)
 
-There is no I/O at the moment or source of interrupts. Executing a WDM #$FF will
-cause the emulator to exit.
+$ cd src
+$ make
 
-## Building
+## Building the test app (*nix)
 
-The code is provided with a Makefile for CARIBOU_RTOS plaforms.
+$ cd test
+$ make
 
-A (very) simple example built with my DEV65 assembler is provided in the examples
-folder. Use the following command to run it.
+## Running the test app (*nix)
 
-```
-emu816 -t simple.s28
-```
+$ ./emu816 simple.s28
+
+## Implementing application memory model
+
+The following virtual methods are provided for application memory and I/O mapping.
+
+{
+        
+        // FIXME - emu816 lib should not know about ROM/RAM and size.
+        //         let's refactor this         
+        virtual void setMemory (Addr memMask, Addr ramSize, const Byte *pROM);
+        virtual void setMemory (Addr memMask, Addr ramSize, Byte *pRAM, const Byte *pROM);
+
+        virtual Byte getByte(Addr ea);
+        virtual Word getWord(Addr ea);
+        virtual Addr getAddr(Addr ea);
+        virtual void setByte(Addr ea, Byte data);
+        virtual void setWord(Addr ea, Word data);
+}

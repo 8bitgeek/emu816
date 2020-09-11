@@ -19,63 +19,40 @@
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
 
-#include "wdc816.h"
+#ifndef MEM816_H
+#define MEM816_H
 
-// Never used.
-wdc816::wdc816()
-{ }
+#include <wdc816.h>
 
-// Never used.
-wdc816::~wdc816()
-{ }
+// The mem816 class defines a set of standard methods for defining and accessing
+// the emulated memory area.
 
-// Convert a value to a hex string
-char *wdc816::toHex(unsigned long value, unsigned int digits)
+class mem816 : public wdc816
 {
-	static char buffer[16];
-	unsigned int offset = sizeof(buffer);;
+    public:
 
-	buffer[--offset] = 0;
-	while (digits-- > 0) {
-		buffer[--offset] = "0123456789ABCDEF"[value & 0xf];
-		value >>= 4;
-	}
-	return (&(buffer[offset]));
-}
+        // Define the memory areas and sizes
+        virtual void setMemory (Addr memMask, Addr ramSize, const Byte *pROM);
+        virtual void setMemory (Addr memMask, Addr ramSize, Byte *pRAM, const Byte *pROM);
 
-// Return the low byte of a word
-wdc816::Byte wdc816::lo(Word value)
-{
-    return ((Byte) value);
-}
+        virtual Byte getByte(Addr ea);
+        virtual Word getWord(Addr ea);
+        virtual Addr getAddr(Addr ea);
+        virtual void setByte(Addr ea, Byte data);
+        virtual void setWord(Addr ea, Word data);
 
-// Return the high byte of a word
-wdc816::Byte wdc816::hi(Word value)
-{
-    return (lo(value >> 8));
-}
+    protected:
 
-// Convert the bank number into a address
-wdc816::Addr wdc816::bank(Byte b)
-{
-    return (b << 16);
-}
+        mem816();
+        virtual ~mem816();
 
-// Combine two bytes into a word
-wdc816::Word wdc816::join(Byte l, Byte h)
-{
-    return (l | (h << 8));
-}
+        Addr		memMask;		// The address mask pattern
+        Addr		ramSize;		// The amount of RAM
 
-// Combine a bank and an word into an address
-wdc816::Addr wdc816::join(Byte b, Word a)
-{
-    return (bank(b) | a);
-}
+    private:
 
-// Swap the high and low bytes of a word
-wdc816::Word wdc816::swap(Word value)
-{
-    return ((value >> 8) | (value << 8));
-}
+        Byte	    *pRAM;			// Base of RAM memory array
+        const Byte  *pROM;			// Base of ROM memory array
 
+};
+#endif

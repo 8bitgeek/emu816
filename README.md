@@ -18,5 +18,5 @@ A (very) simple example built with my DEV65 assembler is provided in the example
 folder. Use the following command to run it.
 
 ```
-emu816 -t examples/simple/simple.s28
+emu816 -t simple.s28
 ```

@@ -2,7 +2,7 @@
 
 Forked from https://github.com/andrew-jacobs/emu816
 
-## Copiling
+## Compiling
 
 ```
 make
@@ -21,7 +21,7 @@ cd test
 
 The following virtual methods are provided for application memory and I/O mapping.
 
-This issue pending https://github.com/8bitgeek/libemu816/issues/1
+* This issue is pending https://github.com/8bitgeek/libemu816/issues/1
 
 ```C++
         

@@ -18,6 +18,8 @@ make
 
 ## Running the test app
 
+* The contents of 'test' are currently transient, a place holder for unit tests.
+
 ```
 ./emu816 simple.s28
 ```

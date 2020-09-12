@@ -2,21 +2,21 @@
 
 Forked from https://github.com/andrew-jacobs/emu816
 
-## Building the library (*nix)
+## Building the library
 
 ```
 cd src
 make
 ```
 
-## Building the test app (*nix)
+## Building the test app
 
 ```
 cd test
 make
 ```
 
-## Running the test app (*nix)
+## Running the test app
 
 ```
 ./emu816 simple.s28

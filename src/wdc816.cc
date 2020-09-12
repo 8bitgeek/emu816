@@ -30,10 +30,10 @@ wdc816::~wdc816()
 { }
 
 // Convert a value to a hex string
-char *wdc816::toHex(unsigned long value, unsigned int digits)
+char *wdc816::toHex(uint32_t value, uint32_t digits)
 {
 	static char buffer[16];
-	unsigned int offset = sizeof(buffer);;
+	uint32_t offset = sizeof(buffer);;
 
 	buffer[--offset] = 0;
 	while (digits-- > 0) {

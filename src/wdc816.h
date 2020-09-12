@@ -33,12 +33,12 @@ class wdc816
     public:
 
         // Common types for memory and register sizes
-        typedef unsigned char	Bit;
-        typedef unsigned char	Byte;
-        typedef unsigned short	Word;
-        typedef unsigned long	Addr;
+        typedef uint8_t	        Bit;
+        typedef uint8_t	        Byte;
+        typedef uint16_t	    Word;
+        typedef uint32_t	    Addr;
 
-        char *toHex(unsigned long value, unsigned int digits);
+        char *toHex(uint32_t value, uint32_t digits);
 
         Byte lo(Word value);
         Byte hi(Word value);

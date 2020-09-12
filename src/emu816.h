@@ -41,7 +41,7 @@ class emu816 : public mem816
         void step();
         void run();
 
-        inline unsigned long getCycles() { return (cycles); }
+        inline uint32_t getCycles() { return (cycles); }
         inline bool          isStopped() { return (stopped); }
 
     private:
@@ -71,11 +71,11 @@ class emu816 : public mem816
 
         bool		    stopped;
         bool		    interrupted;
-        unsigned long   cycles;
+        uint32_t        cycles;
         bool		    trace;
 
         void show();
-        void bytes(unsigned int);
+        void bytes(uint32_t);
         void dump(const char *, Addr);
 
 
@@ -109,12 +109,12 @@ class emu816 : public mem816
         Addr am_rela();
         Addr am_srel();
         Addr am_sriy();
-        void setn(unsigned int flag);
-        void setv(unsigned int flag);
-        void setd(unsigned int flag);
-        void seti(unsigned int flag);
-        void setz(unsigned int flag);
-        void setc(unsigned int flag);
+        void setn(uint32_t flag);
+        void setv(uint32_t flag);
+        void setd(uint32_t flag);
+        void seti(uint32_t flag);
+        void setz(uint32_t flag);
+        void setc(uint32_t flag);
         void setnz_b(Byte value);
         void setnz_w(Word value);
         void op_adc(Addr ea);

@@ -357,7 +357,7 @@ void emu816::show()
 }
 
 // Display the operand bytes
-void emu816::bytes(unsigned int count)
+void emu816::bytes(uint32_t count)
 {
 	if (count > 0)
 		cout << ' ' << toHex(getByte(bank(pbr) | (pc + 0)), 2);
@@ -667,7 +667,7 @@ emu816::Addr emu816::am_immw()
 emu816::Addr emu816::am_immm()
 {
     Addr ea = join (pbr, pc);
-    unsigned int size = (e || p.f_m) ? 1 : 2;
+    uint32_t size = (e || p.f_m) ? 1 : 2;
 
     BYTES(size);
     cycles += size - 1;
@@ -678,7 +678,7 @@ emu816::Addr emu816::am_immm()
 emu816::Addr emu816::am_immx()
 {
     Addr ea = join(pbr, pc);
-    unsigned int size = (e || p.f_x) ? 1 : 2;
+    uint32_t size = (e || p.f_x) ? 1 : 2;
 
     BYTES(size);
     cycles += size - 1;
@@ -737,37 +737,37 @@ emu816::Addr emu816::am_sriy()
 }
 
 // Set the Negative flag
-void emu816::setn(unsigned int flag)
+void emu816::setn(uint32_t flag)
 {
     p.f_n = flag ? 1 : 0;
 }
 
 // Set the Overflow flag
-void emu816::setv(unsigned int flag)
+void emu816::setv(uint32_t flag)
 {
     p.f_v = flag ? 1 : 0;
 }
 
 // Set the decimal flag
-void emu816::setd(unsigned int flag)
+void emu816::setd(uint32_t flag)
 {
     p.f_d = flag ? 1 : 0;
 }
 
 // Set the Interrupt Disable flag
-void emu816::seti(unsigned int flag)
+void emu816::seti(uint32_t flag)
 {
     p.f_i = flag ? 1 : 0;
 }
 
 // Set the Zero flag
-void emu816::setz(unsigned int flag)
+void emu816::setz(uint32_t flag)
 {
     p.f_z = flag ? 1 : 0;
 }
 
 // Set the Carry flag
-void emu816::setc(unsigned int flag)
+void emu816::setc(uint32_t flag)
 {
     p.f_c = flag ? 1 : 0;
 }
@@ -2143,7 +2143,7 @@ void emu816::op_xce(Addr ea)
 {
     TRACE("XCE");
 
-    unsigned char	oe = e;
+    Byte	oe = e;
 
     e = p.f_c;
     p.f_c = oe;

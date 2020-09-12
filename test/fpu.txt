@@ -4715,7 +4715,7 @@ int2dec:
 ; uint2dec - convert an unsigned 128 bits long integer to decimal ascii
 ;
 ;	entry:
-;		facm..facm+15 = unsigned long integer
+;		facm..facm+15 = uint32_t integer
 ;
 ;	exit:
 ;		fpstr = 39 digits ascii decimal string (null terminated)
@@ -4735,7 +4735,7 @@ uint2dec:
 ; ui2dec - convert an unsigned 128 bits long integer to decimal ascii
 ;
 ;	entry:
-;		tm..tm+15 = unsigned long integer
+;		tm..tm+15 = uint32_t integer
 ;
 ;	exit:
 ;		fpstr = 39 digits ascii decimal string (null terminated)

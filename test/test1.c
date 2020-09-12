@@ -1,6 +1,7 @@
 #include <stdio.h>
+#include <stdint.h>
 
-unsigned int j;
+uint32_t j;
 
 int main()
 {

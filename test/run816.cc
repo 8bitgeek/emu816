@@ -54,7 +54,7 @@ inline void setup()
 // S19/28 Record Loader
 //------------------------------------------------------------------------------
 
-unsigned int toNybble(char ch)
+uint32_t toNybble(char ch)
 {
 	if ((ch >= '0') && (ch <= '9')) return (ch - '0');
 	if ((ch >= 'A') && (ch <= 'F')) return (ch - 'A' + 10);
@@ -62,27 +62,27 @@ unsigned int toNybble(char ch)
 	return (0);
 }
 
-unsigned int toByte(string &str, int &offset)
+uint32_t toByte(string &str, int &offset)
 {
-	unsigned int	h = toNybble(str[offset++]) << 4;
-	unsigned int	l = toNybble(str[offset++]);
+	uint32_t	h = toNybble(str[offset++]) << 4;
+	uint32_t	l = toNybble(str[offset++]);
 
 	return (h | l);
 }
 
-unsigned int toWord(string &str, int &offset)
+uint32_t toWord(string &str, int &offset)
 {
-	unsigned int	h = toByte(str, offset) << 8;
-	unsigned int	l = toByte(str, offset);
+	uint32_t	h = toByte(str, offset) << 8;
+	uint32_t	l = toByte(str, offset);
 
 	return (h | l);
 }
 
-unsigned long toAddr(string &str, int &offset)
+uint32_t toAddr(string &str, int &offset)
 {
-	unsigned long	h = toByte(str, offset) << 16;
-	unsigned long	m = toByte(str, offset) << 8;
-	unsigned long	l = toByte(str, offset);
+	uint32_t	h = toByte(str, offset) << 16;
+	uint32_t	m = toByte(str, offset) << 8;
+	uint32_t	l = toByte(str, offset);
 
 	return (h | m | l);
 }
@@ -101,16 +101,16 @@ void load(char *filename)
 				int offset = 2;
 
 				if (line[1] == '1') {
-					unsigned int count = toByte(line, offset);
-					unsigned long addr = toWord(line, offset);
+					uint32_t count = toByte(line, offset);
+					uint32_t addr = toWord(line, offset);
 					count -= 3;
 					while (count-- > 0) {
 						emulator.setByte(addr++, toByte(line, offset));
 					}
 				}
 				else if (line[1] == '2') {
-					unsigned int count = toByte(line, offset);
-					unsigned long addr = toAddr(line, offset);
+					uint32_t count = toByte(line, offset);
+					uint32_t addr = toAddr(line, offset);
 					count -= 4;
 					while (count-- > 0) {
 						emulator.setByte(addr++, toByte(line, offset));

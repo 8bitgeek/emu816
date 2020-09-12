@@ -2,31 +2,26 @@
 
 Forked from https://github.com/andrew-jacobs/emu816
 
-## Building the library
+## Compiling
 
 ```
-cd src
 make
 ```
 
-## Building the test app
-
-```
-cd test
-make
-```
-
-## Running the test app
+## Running a test
 
 * The contents of 'test' are currently transient, a place holder for unit tests.
 
 ```
-./emu816 simple.s28
+cd test
+./run816 simple.s28
 ```
 
 ## Implementing application memory model
 
 The following virtual methods are provided for application memory and I/O mapping.
+
+* This issue is pending https://github.com/8bitgeek/libemu816/issues/1
 
 ```C++
         

@@ -7,7 +7,7 @@
 // 888    .o  888   888   888   888   888  `8.   .88P  888  `Y88   88P 
 // `Y8bod8P' o888o o888o o888o  `V88V"V8P'  `boood8'  o888o  `88bod8'  
 //                                                                    
-// A Portable C++ WDC 65C816 Emulator  
+// A Portable C++ WDC 65C816 vm  
 //------------------------------------------------------------------------------
 // Copyright (C),2016 Andrew John Jacobs
 // All rights reserved.
@@ -27,7 +27,7 @@ using namespace std;
 
 #include <string.h>
 #include <time.h>
-#include <emu816.h>
+#include <vm816.h>
 
 //==============================================================================
 // Memory Definitions
@@ -39,15 +39,15 @@ using namespace std;
 
 bool trace = false;
 
-emu816 emulator;
+vm816 vm;
 
 
 //==============================================================================
 
-// Initialise the emulator
+// Initialise the vm
 inline void setup()
 {
-	emulator.setMemory(MEM_MASK, RAM_SIZE, NULL);
+	vm.setMemory(MEM_MASK, RAM_SIZE, NULL);
 }
 
 //==============================================================================
@@ -105,7 +105,7 @@ void load(char *filename)
 					uint32_t addr = toWord(line, offset);
 					count -= 3;
 					while (count-- > 0) {
-						emulator.setByte(addr++, toByte(line, offset));
+						vm.setByte(addr++, toByte(line, offset));
 					}
 				}
 				else if (line[1] == '2') {
@@ -113,7 +113,7 @@ void load(char *filename)
 					uint32_t addr = toAddr(line, offset);
 					count -= 4;
 					while (count-- > 0) {
-						emulator.setByte(addr++, toByte(line, offset));
+						vm.setByte(addr++, toByte(line, offset));
 					}
 				}
 			}
@@ -166,17 +166,17 @@ int main(int argc, char **argv)
 
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
 
-	emulator.reset(trace);
-	emulator.run();
+	vm.reset(trace);
+	vm.run();
 
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
 
 	double secs = (end.tv_sec + end.tv_nsec / 1000000000.0)
 		    - (start.tv_sec + start.tv_nsec / 1000000000.0);
 
-	double speed = emulator.getCycles() / secs;
+	double speed = vm.cycles() / secs;
 
-	cout << endl << "Executed " << emulator.getCycles() << " in " << secs << " Secs";
+	cout << endl << "Executed " << vm.cycles() << " in " << secs << " Secs";
 	cout << endl << "Overall CPU Frequency = ";
 	if (speed < 1000.0)
 		cout << speed << " Hz";

@@ -19,10 +19,10 @@
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
 
-#include <mem816.h>
+#include <vm816.h>
 
 // Never used.
-mem816::mem816()
+vm816::vm816()
 : memMask(0)
 , ramSize(0)
 , pRAM(NULL)
@@ -31,29 +31,29 @@ mem816::mem816()
 }
 
 // Never used.
-mem816::~mem816()
+vm816::~vm816()
 { 
     if ( pRAM )
         delete pRAM;
 }
 
 // Sets up the memory areas using a dynamically allocated array
-void mem816::setMemory(Addr memMask, Addr ramSize, const Byte *pROM)
+void vm816::setMemory(emu816_addr_t memMask, emu816_addr_t ramSize, const uint8_t *pROM)
 {
-	setMemory(memMask, ramSize, new Byte[ramSize], pROM);
+	setMemory(memMask, ramSize, new uint8_t[ramSize], pROM);
 }
 
 // Sets up the memory area using pre-allocated array
-void mem816::setMemory(Addr memMask, Addr ramSize, Byte *pRAM, const Byte *pROM)
+void vm816::setMemory(emu816_addr_t memMask, emu816_addr_t ramSize, uint8_t *pRAM, const uint8_t *pROM)
 {
-	mem816::memMask = memMask;
-	mem816::ramSize = ramSize;
-	mem816::pRAM = pRAM;
-	mem816::pROM = pROM;
+	vm816::memMask = memMask;
+	vm816::ramSize = ramSize;
+	vm816::pRAM = pRAM;
+	vm816::pROM = pROM;
 }
 
-// Fetch a byte from memory
-wdc816::Byte mem816::getByte(Addr ea)
+// Fetch a uint8_t from memory
+uint8_t vm816::getByte(emu816_addr_t ea)
 {
     if ((ea &= memMask) < ramSize)
         return (pRAM[ea]);
@@ -62,27 +62,27 @@ wdc816::Byte mem816::getByte(Addr ea)
 }
 
 // Fetch a word from memory
-wdc816::Word mem816::getWord(Addr ea)
+uint16_t vm816::getWord(emu816_addr_t ea)
 {
         return (join(getByte(ea + 0), getByte(ea + 1)));
 }
 
 // Fetch a long address from memory
-wdc816::Addr mem816::getAddr(Addr ea)
+emu816_addr_t vm816::getAddr(emu816_addr_t ea)
 {
     return (join(getByte(ea + 2), getWord(ea + 0)));
 }
 
-// Write a byte to memory
-void mem816::setByte(Addr ea, Byte data)
+// Write a uint8_t to memory
+void vm816::setByte(emu816_addr_t ea, uint8_t data)
 {
     if ((ea &= memMask) < ramSize)
         pRAM[ea] = data;
 }
 
 // Write a word to memory
-void mem816::setWord(Addr ea, Word data)
+void vm816::setWord(emu816_addr_t ea, uint16_t data)
 {
-        setByte(ea + 0, lo(data));
-        setByte(ea + 1, hi(data));
+    setByte(ea + 0, lo(data));
+    setByte(ea + 1, hi(data));
 }

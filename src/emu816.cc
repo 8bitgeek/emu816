@@ -422,7 +422,7 @@ emu816_addr_t emu816::am_absl()
 {
     emu816_addr_t	ea = join (dbr, loadWord(bank(pbr) | pc));
 
-    fetch(2);
+    stepFetch(2);
     m_cycles += 2;
     return (ea);
 }
@@ -432,7 +432,7 @@ emu816_addr_t emu816::am_absx()
 {
     emu816_addr_t	ea = join(dbr, loadWord(bank(pbr) | pc)) + x.w;
 
-    fetch(2);
+    stepFetch(2);
     m_cycles += 2;
     return (ea);
 }
@@ -442,7 +442,7 @@ emu816_addr_t emu816::am_absy()
 {
     emu816_addr_t	ea = join(dbr, loadWord(bank(pbr) | pc)) + y.w;
 
-    fetch(2);
+    stepFetch(2);
     m_cycles += 2;
     return (ea);
 }
@@ -452,7 +452,7 @@ emu816_addr_t emu816::am_absi()
 {
     emu816_addr_t ia = join(0, loadWord(bank(pbr) | pc));
 
-    fetch(2);
+    stepFetch(2);
     m_cycles += 4;
     return (join(0, loadWord(ia)));
 }
@@ -462,7 +462,7 @@ emu816_addr_t emu816::am_abxi()
 {
     emu816_addr_t ia = join(pbr, loadWord(join(pbr, pc))) + x.w;
 
-    fetch(2);
+    stepFetch(2);
     m_cycles += 4;
     return (join(pbr, loadWord(ia)));
 }
@@ -472,7 +472,7 @@ emu816_addr_t emu816::am_alng()
 {
     emu816_addr_t ea = getAddr(join(pbr, pc));
 
-    fetch(3);
+    stepFetch(3);
     m_cycles += 3;
     return (ea);
 }
@@ -482,7 +482,7 @@ emu816_addr_t emu816::am_alnx()
 {
     emu816_addr_t ea = getAddr(join(pbr, pc)) + x.w;
 
-    fetch(3);
+    stepFetch(3);
     m_cycles += 3;
     return (ea);
 }
@@ -492,7 +492,7 @@ emu816_addr_t emu816::am_abil()
 {
     emu816_addr_t ia = bank(0) | loadWord(join(pbr, pc));
 
-    fetch(2);
+    stepFetch(2);
     m_cycles += 5;
     return (getAddr(ia));
 }
@@ -502,7 +502,7 @@ emu816_addr_t emu816::am_dpag()
 {
     uint8_t offset = loadByte(bank(pbr) | pc);
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 1;
     return (bank(0) | (uint16_t)(dp.w + offset));
 }
@@ -512,7 +512,7 @@ emu816_addr_t emu816::am_dpgx()
 {
     uint8_t offset = loadByte(bank(pbr) | pc) + x.b;
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 1;
     return (bank(0) | (uint16_t)(dp.w + offset));
 }
@@ -522,7 +522,7 @@ emu816_addr_t emu816::am_dpgy()
 {
     uint8_t offset = loadByte(bank(pbr) | pc) + y.b;
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 1;
     return (bank(0) | (uint16_t)(dp.w + offset));
 }
@@ -532,7 +532,7 @@ emu816_addr_t emu816::am_dpgi()
 {
     uint8_t disp = loadByte(bank(pbr) | pc);
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 3;
     return (bank(dbr) | loadWord(bank(0) | (uint16_t)(dp.w + disp)));
 }
@@ -542,7 +542,7 @@ emu816_addr_t emu816::am_dpix()
 {
     uint8_t disp = loadByte(join(pbr, pc));
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 3;
     return (bank(dbr) | loadWord(bank(0) | (uint16_t)(dp.w + disp + x.w)));
 }
@@ -552,7 +552,7 @@ emu816_addr_t emu816::am_dpiy()
 {
     uint8_t disp = loadByte(join(pbr, pc));
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 3;
     return (bank(dbr) | loadWord(bank(0) | (dp.w + disp)) + y.w);
 }
@@ -562,7 +562,7 @@ emu816_addr_t emu816::am_dpil()
 {
     uint8_t disp = loadByte(join(pbr, pc));
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 4;
     return (getAddr(bank(0) | (uint16_t)(dp.w + disp)));
 }
@@ -572,7 +572,7 @@ emu816_addr_t emu816::am_dily()
 {
     uint8_t disp = loadByte(join(pbr, pc));
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 4;
     return (getAddr(bank(0) | (uint16_t)(dp.w + disp)) + y.w);
 }
@@ -580,14 +580,14 @@ emu816_addr_t emu816::am_dily()
 // Implied/Stack
 emu816_addr_t emu816::am_impl()
 {
-    fetch(0);
+    stepFetch(0);
     return (0);
 }
 
 // Accumulator
 emu816_addr_t emu816::am_acc()
 {
-    fetch(0);
+    stepFetch(0);
     return (0);
 }
 
@@ -596,7 +596,7 @@ emu816_addr_t emu816::am_immb()
 {
     emu816_addr_t ea = bank(pbr) | pc;
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 0;
     return (ea);
 }
@@ -606,7 +606,7 @@ emu816_addr_t emu816::am_immw()
 {
     emu816_addr_t ea = bank(pbr) | pc;
 
-    fetch(2);
+    stepFetch(2);
     m_cycles += 1;
     return (ea);
 }
@@ -617,7 +617,7 @@ emu816_addr_t emu816::am_immm()
     emu816_addr_t ea = join (pbr, pc);
     uint32_t size = (e || p.f_m) ? 1 : 2;
 
-    fetch(size);
+    stepFetch(size);
     m_cycles += size - 1;
     return (ea);
 }
@@ -628,7 +628,7 @@ emu816_addr_t emu816::am_immx()
     emu816_addr_t ea = join(pbr, pc);
     uint32_t size = (e || p.f_x) ? 1 : 2;
 
-    fetch(size);
+    stepFetch(size);
     m_cycles += size - 1;
     return (ea);
 }
@@ -638,7 +638,7 @@ emu816_addr_t emu816::am_lrel()
 {
     uint16_t disp = loadWord(join(pbr, pc));
 
-    fetch(2);
+    stepFetch(2);
     m_cycles += 2;
     return (bank(pbr) | (uint16_t)(pc + (signed short)disp));
 }
@@ -648,7 +648,7 @@ emu816_addr_t emu816::am_rela()
 {
     uint8_t disp = loadByte(join(pbr, pc));
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 1;
     return (bank(pbr) | (uint16_t)(pc + (signed char)disp));
 }
@@ -658,7 +658,7 @@ emu816_addr_t emu816::am_srel()
 {
     uint8_t disp = loadByte(join(pbr, pc));
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 1;
 
     if (e)
@@ -673,7 +673,7 @@ emu816_addr_t emu816::am_sriy()
     uint8_t disp = loadByte(join(pbr, pc));
     uint16_t ia;
 
-    fetch(1);
+    stepFetch(1);
     m_cycles += 3;
 
     if (e)

@@ -88,7 +88,7 @@ class emu816
 
    private:
 
-        inline void             fetch(uint32_t count) {pc += count;} 
+        inline void             stepFetch(uint32_t count) {pc += count;} 
 
         bool		            m_stopped;
         uint32_t                m_cycles;

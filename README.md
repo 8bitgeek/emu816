@@ -28,6 +28,7 @@ The application memory map may be accomplished by overloading the following virt
         virtual void            storeByte(emu816_addr_t ea, uint8_t data);
 
         virtual uint16_t        loadWord(emu816_addr_t ea);
-        virtual emu816_addr_t   getAddr(emu816_addr_t ea);
         virtual void            storeWord(emu816_addr_t ea, uint16_t data);
+
+        virtual emu816_addr_t   getAddr(emu816_addr_t ea);
 ```

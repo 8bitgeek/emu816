@@ -35,12 +35,16 @@ class dbg816 : public vm816
 
         virtual void        step();
 
+        virtual uint8_t     loadByte(emu816_addr_t ea);
+        virtual void        storeByte(emu816_addr_t ea, uint8_t data);
+
     private:
 
         void                dump();
         void                csi();
         void                home();
         void                clear();
+        void                move(uint8_t x, uint8_t y);
 };
 
 #endif 

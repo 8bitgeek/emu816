@@ -49,8 +49,9 @@ class emu816
         virtual void            storeByte(emu816_addr_t ea, uint8_t data) = 0;
 
         virtual uint16_t        loadWord(emu816_addr_t ea) = 0;
-        virtual emu816_addr_t   getAddr(emu816_addr_t ea) = 0;
         virtual void            storeWord(emu816_addr_t ea, uint16_t data) = 0;
+
+        virtual emu816_addr_t   getAddr(emu816_addr_t ea) = 0;
 
     protected:
 
@@ -87,7 +88,7 @@ class emu816
 
    private:
 
-        inline void             fetch(uint32_t count) {pc += count;} 
+        inline void             stepFetch(uint32_t count) {pc += count;} 
 
         bool		            m_stopped;
         uint32_t                m_cycles;

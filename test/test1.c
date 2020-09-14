@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 uint32_t j;
+uint8_t storage[4];
 
 int main()
 {

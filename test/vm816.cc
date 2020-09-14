@@ -21,7 +21,6 @@
 
 #include <vm816.h>
 
-// Never used.
 vm816::vm816()
 : memMask(0)
 , ramSize(0)
@@ -30,7 +29,6 @@ vm816::vm816()
 { 
 }
 
-// Never used.
 vm816::~vm816()
 { 
     if ( pRAM )
@@ -53,7 +51,7 @@ void vm816::setMemory(emu816_addr_t memMask, emu816_addr_t ramSize, uint8_t *pRA
 }
 
 // Fetch a uint8_t from memory
-uint8_t vm816::getByte(emu816_addr_t ea)
+uint8_t vm816::loadByte(emu816_addr_t ea)
 {
     if ((ea &= memMask) < ramSize)
         return (pRAM[ea]);
@@ -62,27 +60,27 @@ uint8_t vm816::getByte(emu816_addr_t ea)
 }
 
 // Fetch a word from memory
-uint16_t vm816::getWord(emu816_addr_t ea)
+uint16_t vm816::loadWord(emu816_addr_t ea)
 {
-        return (join(getByte(ea + 0), getByte(ea + 1)));
+        return (join(loadByte(ea + 0), loadByte(ea + 1)));
 }
 
 // Fetch a long address from memory
 emu816_addr_t vm816::getAddr(emu816_addr_t ea)
 {
-    return (join(getByte(ea + 2), getWord(ea + 0)));
+    return (join(loadByte(ea + 2), loadWord(ea + 0)));
 }
 
 // Write a uint8_t to memory
-void vm816::setByte(emu816_addr_t ea, uint8_t data)
+void vm816::storeByte(emu816_addr_t ea, uint8_t data)
 {
     if ((ea &= memMask) < ramSize)
         pRAM[ea] = data;
 }
 
 // Write a word to memory
-void vm816::setWord(emu816_addr_t ea, uint16_t data)
+void vm816::storeWord(emu816_addr_t ea, uint16_t data)
 {
-    setByte(ea + 0, lo(data));
-    setByte(ea + 1, hi(data));
+    storeByte(ea + 0, lo(data));
+    storeByte(ea + 1, hi(data));
 }

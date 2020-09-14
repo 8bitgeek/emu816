@@ -19,35 +19,29 @@
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
 
-#ifndef VM816_H
-#define VM816_H
+#ifndef DBG816_H
+#define DBG816_H
 
-#include <emu816.h>
+#include <vm816.h>
+#include <stdlib.h>
+#include <stdint.h>
 
-class vm816 : public emu816
+class dbg816 : public vm816
 {
     public:
 
-        vm816();
-        virtual ~vm816();
+        dbg816();
+        virtual ~dbg816();
 
-        // Define the memory areas and sizes
-        virtual void            setMemory (emu816_addr_t memMask, emu816_addr_t ramSize, const uint8_t *pROM);
-        virtual void            setMemory (emu816_addr_t memMask, emu816_addr_t ramSize, uint8_t *pRAM, const uint8_t *pROM);
-
-        virtual uint8_t         loadByte(emu816_addr_t ea);
-        virtual void            storeByte(emu816_addr_t ea, uint8_t data);
-        virtual uint16_t        loadWord(emu816_addr_t ea);
-        virtual void            storeWord(emu816_addr_t ea, uint16_t data);
-        virtual emu816_addr_t   getAddr(emu816_addr_t ea);
+        virtual void        step();
 
     private:
 
-        emu816_addr_t		    memMask;		// The address mask pattern
-        emu816_addr_t		    ramSize;		// The amount of RAM
-
-        uint8_t*                pRAM;			// Base of RAM memory array
-        const uint8_t*          pROM;			// Base of ROM memory array
-
+        void                dump();
+        void                csi();
+        void                home();
+        void                clear();
 };
-#endif
+
+#endif 
+

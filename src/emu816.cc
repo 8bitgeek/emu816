@@ -19,20 +19,11 @@
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
 #include <emu816.h>
-#include <iostream>
-#include <string>
 
-using namespace std;
-
-
-//==============================================================================
-
-// Not used.
-emu816::emu816(bool trace)
+emu816::emu816()
 { 
 }
 
-// Not used
 emu816::~emu816()
 { 
 }
@@ -40,13 +31,13 @@ emu816::~emu816()
 // Return the low byte of a word
 uint8_t emu816::lo(uint16_t value)
 {
-    return ((uint8_t) value);
+    return (uint8_t)value;
 }
 
 // Return the high byte of a word
 uint8_t emu816::hi(uint16_t value)
 {
-    return (lo(value >> 8));
+    return (uint8_t)(value >> 8);
 }
 
 // Convert the bank number into a address
@@ -74,19 +65,17 @@ uint16_t emu816::swap(uint16_t value)
 }
 
 // Reset the state of emulator
-void emu816::reset(bool trace)
+void emu816::reset()
 {
 	e = 1;
 	pbr = 0x00;
 	dbr = 0x00;
 	dp.w = 0x0000;
 	sp.w = 0x0100;
-	pc = getWord(0xfffc);
+	pc = loadWord(0xfffc);
 	p.b = 0x34;
 
 	m_stopped = false;
-	
-	emu816::trace = trace;
 }
 
 void emu816::run()
@@ -115,9 +104,7 @@ void emu816::step()
 {
 	// Check for NMI/IRQ
 
-	SHOWPC();
-
-	switch (getByte (join(pbr, pc++))) {
+	switch (loadByte (join(pbr, pc++))) {
 	case 0x00:	op_brk(am_immb());	break;
 	case 0x01:	op_ora(am_dpix());	break;
 	case 0x02:	op_cop(am_immb());	break;
@@ -392,112 +379,10 @@ void emu816::step()
 	}
 }
 
-//==============================================================================
-// Debugging Utilities
-//------------------------------------------------------------------------------
-
-// Convert a value to a hex string
-char *emu816::toHex(uint32_t value, uint32_t digits)
-{
-	static char buffer[16];
-	uint32_t offset = sizeof(buffer);;
-
-	buffer[--offset] = 0;
-	while (digits-- > 0) {
-		buffer[--offset] = "0123456789ABCDEF"[value & 0xf];
-		value >>= 4;
-	}
-	return (&(buffer[offset]));
-}
-
-// The current PC and opcode byte
-void emu816::show()
-{
-//	cout << '{' << toHex(m_cycles, 4) << "} ";
-	cout << toHex(pbr, 2);
-	cout << ':' << toHex(pc, 4);
-	cout << ' ' << toHex(getByte(join(pbr, pc)), 2);
-}
-
-// Display the operand bytes
-void emu816::bytes(uint32_t count)
-{
-	if (count > 0)
-		cout << ' ' << toHex(getByte(bank(pbr) | (pc + 0)), 2);
-	else
-		cout << "   ";
-
-	if (count > 1)
-		cout << ' ' << toHex(getByte(bank(pbr) | (pc + 1)), 2);
-	else
-		cout << "   ";
-
-	if (count > 2)
-		cout << ' ' << toHex(getByte(bank(pbr) | (pc + 2)), 2);
-	else
-		cout << "   ";
-
-	cout << ' ';
-}
-
-// Display registers and top of stack
-void emu816::dump(const char *mnem, emu816_addr_t ea)
-{
-	cout << mnem << " {";
-	cout << toHex(ea >> 16, 2) << ':';
-	cout << toHex(ea, 4) << '}';
-
-	cout << " E=" << toHex(e, 1);
-	cout << " P=" <<
-		(p.f_n ? 'N' : '.') <<
-		(p.f_v ? 'V' : '.') <<
-		(p.f_m ? 'M' : '.') <<
-		(p.f_x ? 'X' : '.') <<
-		(p.f_d ? 'D' : '.') <<
-		(p.f_i ? 'I' : '.') <<
-		(p.f_z ? 'Z' : '.') <<
-		(p.f_c ? 'C' : '.');
-	cout << " A=";
-	if (e || p.f_m)
-		cout << toHex(hi(a.w), 2) << '[';
-	else
-		cout << '[' << toHex(hi(a.w), 2);
-	cout << toHex(a.b, 2) << ']';
-	cout << " X=";
-	if (e || p.f_x)
-		cout << toHex(hi(x.w), 2) << '[';
-	else
-		cout << '[' << toHex(hi(x.w), 2);
-	cout << toHex(x.b, 2) << ']';
-	cout << " Y=";
-	if (e || p.f_x)
-		cout << toHex(hi(y.w), 2) << '[';
-	else
-		cout << '[' << toHex(hi(y.w), 2);
-	cout << toHex(y.b, 2) << ']';
-	cout << " DP=" << toHex(dp.w, 4);
-	cout << " SP=";
-	if (e)
-		cout << toHex(hi(sp.w), 2) << '[';
-	else
-		cout << '[' << toHex(hi(sp.w), 2);
-	cout << toHex(sp.b, 2) << ']';
-	cout << " {";
-	cout << ' ' << toHex(getByte(sp.w + 1), 2);
-	cout << ' ' << toHex(getByte(sp.w + 2), 2);
-	cout << ' ' << toHex(getByte(sp.w + 3), 2);
-	cout << ' ' << toHex(getByte(sp.w + 4), 2);
-	cout << " }";
-	cout << " DBR=" << toHex(dbr, 2) << endl;
-}
-
-
-
-
 // Push a byte on the stack
 void emu816::pushByte(uint8_t value)
 {
-    setByte(sp.w, value);
+    storeByte(sp.w, value);
 
     if (e)
         --sp.b;
@@ -520,7 +405,7 @@ uint8_t emu816::pullByte()
     else
         ++sp.w;
 
-    return (getByte(sp.w));
+    return (loadByte(sp.w));
 }
 
 // Pull a word from the stack
@@ -535,9 +420,9 @@ uint16_t emu816::pulluint16_t()
 // Absolute - a
 emu816_addr_t emu816::am_absl()
 {
-    register emu816_addr_t	ea = join (dbr, getWord(bank(pbr) | pc));
+    register emu816_addr_t	ea = join (dbr, loadWord(bank(pbr) | pc));
 
-    BYTES(2);
+    fetch(2);
     m_cycles += 2;
     return (ea);
 }
@@ -545,9 +430,9 @@ emu816_addr_t emu816::am_absl()
 // Absolute Indexed X - a,X
 emu816_addr_t emu816::am_absx()
 {
-    register emu816_addr_t	ea = join(dbr, getWord(bank(pbr) | pc)) + x.w;
+    register emu816_addr_t	ea = join(dbr, loadWord(bank(pbr) | pc)) + x.w;
 
-    BYTES(2);
+    fetch(2);
     m_cycles += 2;
     return (ea);
 }
@@ -555,9 +440,9 @@ emu816_addr_t emu816::am_absx()
 // Absolute Indexed Y - a,Y
 emu816_addr_t emu816::am_absy()
 {
-    register emu816_addr_t	ea = join(dbr, getWord(bank(pbr) | pc)) + y.w;
+    register emu816_addr_t	ea = join(dbr, loadWord(bank(pbr) | pc)) + y.w;
 
-    BYTES(2);
+    fetch(2);
     m_cycles += 2;
     return (ea);
 }
@@ -565,21 +450,21 @@ emu816_addr_t emu816::am_absy()
 // Absolute Indirect - (a)
 emu816_addr_t emu816::am_absi()
 {
-    register emu816_addr_t ia = join(0, getWord(bank(pbr) | pc));
+    register emu816_addr_t ia = join(0, loadWord(bank(pbr) | pc));
 
-    BYTES(2);
+    fetch(2);
     m_cycles += 4;
-    return (join(0, getWord(ia)));
+    return (join(0, loadWord(ia)));
 }
 
 // Absolute Indexed Indirect - (a,X)
 emu816_addr_t emu816::am_abxi()
 {
-    register emu816_addr_t ia = join(pbr, getWord(join(pbr, pc))) + x.w;
+    register emu816_addr_t ia = join(pbr, loadWord(join(pbr, pc))) + x.w;
 
-    BYTES(2);
+    fetch(2);
     m_cycles += 4;
-    return (join(pbr, getWord(ia)));
+    return (join(pbr, loadWord(ia)));
 }
 
 // Absolute Long - >a
@@ -587,7 +472,7 @@ emu816_addr_t emu816::am_alng()
 {
     emu816_addr_t ea = getAddr(join(pbr, pc));
 
-    BYTES(3);
+    fetch(3);
     m_cycles += 3;
     return (ea);
 }
@@ -597,7 +482,7 @@ emu816_addr_t emu816::am_alnx()
 {
     register emu816_addr_t ea = getAddr(join(pbr, pc)) + x.w;
 
-    BYTES(3);
+    fetch(3);
     m_cycles += 3;
     return (ea);
 }
@@ -605,9 +490,9 @@ emu816_addr_t emu816::am_alnx()
 // Absolute Indirect Long - [a]
 emu816_addr_t emu816::am_abil()
 {
-    register emu816_addr_t ia = bank(0) | getWord(join(pbr, pc));
+    register emu816_addr_t ia = bank(0) | loadWord(join(pbr, pc));
 
-    BYTES(2);
+    fetch(2);
     m_cycles += 5;
     return (getAddr(ia));
 }
@@ -615,9 +500,9 @@ emu816_addr_t emu816::am_abil()
 // Direct Page - d
 emu816_addr_t emu816::am_dpag()
 {
-    uint8_t offset = getByte(bank(pbr) | pc);
+    uint8_t offset = loadByte(bank(pbr) | pc);
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 1;
     return (bank(0) | (uint16_t)(dp.w + offset));
 }
@@ -625,9 +510,9 @@ emu816_addr_t emu816::am_dpag()
 // Direct Page Indexed X - d,X
 emu816_addr_t emu816::am_dpgx()
 {
-    uint8_t offset = getByte(bank(pbr) | pc) + x.b;
+    uint8_t offset = loadByte(bank(pbr) | pc) + x.b;
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 1;
     return (bank(0) | (uint16_t)(dp.w + offset));
 }
@@ -635,9 +520,9 @@ emu816_addr_t emu816::am_dpgx()
 // Direct Page Indexed Y - d,Y
 emu816_addr_t emu816::am_dpgy()
 {
-    uint8_t offset = getByte(bank(pbr) | pc) + y.b;
+    uint8_t offset = loadByte(bank(pbr) | pc) + y.b;
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 1;
     return (bank(0) | (uint16_t)(dp.w + offset));
 }
@@ -645,39 +530,39 @@ emu816_addr_t emu816::am_dpgy()
 // Direct Page Indirect - (d)
 emu816_addr_t emu816::am_dpgi()
 {
-    uint8_t disp = getByte(bank(pbr) | pc);
+    uint8_t disp = loadByte(bank(pbr) | pc);
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 3;
-    return (bank(dbr) | getWord(bank(0) | (uint16_t)(dp.w + disp)));
+    return (bank(dbr) | loadWord(bank(0) | (uint16_t)(dp.w + disp)));
 }
 
 // Direct Page Indexed Indirect - (d,x)
 emu816_addr_t emu816::am_dpix()
 {
-    uint8_t disp = getByte(join(pbr, pc));
+    uint8_t disp = loadByte(join(pbr, pc));
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 3;
-    return (bank(dbr) | getWord(bank(0) | (uint16_t)(dp.w + disp + x.w)));
+    return (bank(dbr) | loadWord(bank(0) | (uint16_t)(dp.w + disp + x.w)));
 }
 
 // Direct Page Indirect Indexed - (d),Y
 emu816_addr_t emu816::am_dpiy()
 {
-    uint8_t disp = getByte(join(pbr, pc));
+    uint8_t disp = loadByte(join(pbr, pc));
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 3;
-    return (bank(dbr) | getWord(bank(0) | (dp.w + disp)) + y.w);
+    return (bank(dbr) | loadWord(bank(0) | (dp.w + disp)) + y.w);
 }
 
 // Direct Page Indirect Long - [d]
 emu816_addr_t emu816::am_dpil()
 {
-    uint8_t disp = getByte(join(pbr, pc));
+    uint8_t disp = loadByte(join(pbr, pc));
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 4;
     return (getAddr(bank(0) | (uint16_t)(dp.w + disp)));
 }
@@ -685,9 +570,9 @@ emu816_addr_t emu816::am_dpil()
 // Direct Page Indirect Long Indexed - [d],Y
 emu816_addr_t emu816::am_dily()
 {
-    uint8_t disp = getByte(join(pbr, pc));
+    uint8_t disp = loadByte(join(pbr, pc));
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 4;
     return (getAddr(bank(0) | (uint16_t)(dp.w + disp)) + y.w);
 }
@@ -695,14 +580,14 @@ emu816_addr_t emu816::am_dily()
 // Implied/Stack
 emu816_addr_t emu816::am_impl()
 {
-    BYTES(0);
+    fetch(0);
     return (0);
 }
 
 // Accumulator
 emu816_addr_t emu816::am_acc()
 {
-    BYTES(0);
+    fetch(0);
     return (0);
 }
 
@@ -711,7 +596,7 @@ emu816_addr_t emu816::am_immb()
 {
     emu816_addr_t ea = bank(pbr) | pc;
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 0;
     return (ea);
 }
@@ -721,7 +606,7 @@ emu816_addr_t emu816::am_immw()
 {
     emu816_addr_t ea = bank(pbr) | pc;
 
-    BYTES(2);
+    fetch(2);
     m_cycles += 1;
     return (ea);
 }
@@ -732,7 +617,7 @@ emu816_addr_t emu816::am_immm()
     emu816_addr_t ea = join (pbr, pc);
     uint32_t size = (e || p.f_m) ? 1 : 2;
 
-    BYTES(size);
+    fetch(size);
     m_cycles += size - 1;
     return (ea);
 }
@@ -743,7 +628,7 @@ emu816_addr_t emu816::am_immx()
     emu816_addr_t ea = join(pbr, pc);
     uint32_t size = (e || p.f_x) ? 1 : 2;
 
-    BYTES(size);
+    fetch(size);
     m_cycles += size - 1;
     return (ea);
 }
@@ -751,9 +636,9 @@ emu816_addr_t emu816::am_immx()
 // Long Relative - d
 emu816_addr_t emu816::am_lrel()
 {
-    uint16_t disp = getWord(join(pbr, pc));
+    uint16_t disp = loadWord(join(pbr, pc));
 
-    BYTES(2);
+    fetch(2);
     m_cycles += 2;
     return (bank(pbr) | (uint16_t)(pc + (signed short)disp));
 }
@@ -761,9 +646,9 @@ emu816_addr_t emu816::am_lrel()
 // Relative - d
 emu816_addr_t emu816::am_rela()
 {
-    uint8_t disp = getByte(join(pbr, pc));
+    uint8_t disp = loadByte(join(pbr, pc));
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 1;
     return (bank(pbr) | (uint16_t)(pc + (signed char)disp));
 }
@@ -771,9 +656,9 @@ emu816_addr_t emu816::am_rela()
 // Stack Relative - d,S
 emu816_addr_t emu816::am_srel()
 {
-    uint8_t disp = getByte(join(pbr, pc));
+    uint8_t disp = loadByte(join(pbr, pc));
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 1;
 
     if (e)
@@ -785,16 +670,16 @@ emu816_addr_t emu816::am_srel()
 // Stack Relative Indirect Indexed Y - (d,S),Y
 emu816_addr_t emu816::am_sriy()
 {
-    uint8_t disp = getByte(join(pbr, pc));
+    uint8_t disp = loadByte(join(pbr, pc));
     register uint16_t ia;
 
-    BYTES(1);
+    fetch(1);
     m_cycles += 3;
 
     if (e)
-        ia = getWord(join(sp.b + disp, hi(sp.w)));
+        ia = loadWord(join(sp.b + disp, hi(sp.w)));
     else
-        ia = getWord(bank(0) | (sp.w + disp));
+        ia = loadWord(bank(0) | (sp.w + disp));
 
     return (bank(dbr) | (uint16_t)(ia + y.w));
 }
@@ -851,10 +736,8 @@ void emu816::setnz_w(uint16_t value)
 
 void emu816::op_adc(emu816_addr_t ea)
 {
-    TRACE("ADC");
-
     if (e || p.f_m) {
-        uint8_t	data = getByte(ea);
+        uint8_t	data = loadByte(ea);
         uint16_t	temp = a.b + data + p.f_c;
         
         if (p.f_d) {
@@ -868,7 +751,7 @@ void emu816::op_adc(emu816_addr_t ea)
         m_cycles += 2;
     }
     else {
-        uint16_t	data = getWord(ea);
+        uint16_t	data = loadWord(ea);
         int		temp = a.w + data + p.f_c;
 
         if (p.f_d) {
@@ -887,60 +770,56 @@ void emu816::op_adc(emu816_addr_t ea)
 
 void emu816::op_and(emu816_addr_t ea)
 {
-    TRACE("AND");
 
     if (e || p.f_m) {
-        setnz_b(a.b &= getByte(ea));
+        setnz_b(a.b &= loadByte(ea));
         m_cycles += 2;
     }
     else {
-        setnz_w(a.w &= getWord(ea));
+        setnz_w(a.w &= loadWord(ea));
         m_cycles += 3;
     }
 }
 
 void emu816::op_asl(emu816_addr_t ea)
 {
-    TRACE("ASL");
 
     if (e || p.f_m) {
-        register uint8_t data = getByte(ea);
+        register uint8_t data = loadByte(ea);
 
         setc(data & 0x80);
         setnz_b(data <<= 1);
-        setByte(ea, data);
+        storeByte(ea, data);
         m_cycles += 4;
     }
     else {
-        register uint16_t data = getWord(ea);
+        register uint16_t data = loadWord(ea);
 
         setc(data & 0x8000);
         setnz_w(data <<= 1);
-        setWord(ea, data);
+        storeWord(ea, data);
         m_cycles += 5;
     }
 }
 
 void emu816::op_asla(emu816_addr_t ea)
 {
-    TRACE("ASL");
 
     if (e || p.f_m) {
         setc(a.b & 0x80);
         setnz_b(a.b <<= 1);
-        setByte(ea, a.b);
+        storeByte(ea, a.b);
     }
     else {
         setc(a.w & 0x8000);
         setnz_w(a.w <<= 1);
-        setWord(ea, a.w);
+        storeWord(ea, a.w);
     }
     m_cycles += 2;
 }
 
 void emu816::op_bcc(emu816_addr_t ea)
 {
-    TRACE("BCC");
 
     if (p.f_c == 0) {
         if (e && ((pc ^ ea) & 0xff00)) ++m_cycles;
@@ -953,7 +832,6 @@ void emu816::op_bcc(emu816_addr_t ea)
 
 void emu816::op_bcs(emu816_addr_t ea)
 {
-    TRACE("BCS");
 
     if (p.f_c == 1) {
         if (e && ((pc ^ ea) & 0xff00)) ++m_cycles;
@@ -966,7 +844,6 @@ void emu816::op_bcs(emu816_addr_t ea)
 
 void emu816::op_beq(emu816_addr_t ea)
 {
-    TRACE("BEQ");
 
     if (p.f_z == 1) {
         if (e && ((pc ^ ea) & 0xff00)) ++m_cycles;
@@ -979,10 +856,9 @@ void emu816::op_beq(emu816_addr_t ea)
 
 void emu816::op_bit(emu816_addr_t ea)
 {
-    TRACE("BIT");
 
     if (e || p.f_m) {
-        register uint8_t data = getByte(ea);
+        register uint8_t data = loadByte(ea);
 
         setz((a.b & data) == 0);
         setn(data & 0x80);
@@ -990,7 +866,7 @@ void emu816::op_bit(emu816_addr_t ea)
         m_cycles += 2;
     }
     else {
-        register uint16_t data = getWord(ea);
+        register uint16_t data = loadWord(ea);
 
         setz((a.w & data) == 0);
         setn(data & 0x8000);
@@ -1002,15 +878,14 @@ void emu816::op_bit(emu816_addr_t ea)
 
 void emu816::op_biti(emu816_addr_t ea)
 {
-    TRACE("BIT");
 
     if (e || p.f_m) {
-        register uint8_t data = getByte(ea);
+        register uint8_t data = loadByte(ea);
 
         setz((a.b & data) == 0);
     }
     else {
-        register uint16_t data = getWord(ea);
+        register uint16_t data = loadWord(ea);
 
         setz((a.w & data) == 0);
     }
@@ -1019,7 +894,6 @@ void emu816::op_biti(emu816_addr_t ea)
 
 void emu816::op_bmi(emu816_addr_t ea)
 {
-    TRACE("BMI");
 
     if (p.f_n == 1) {
         if (e && ((pc ^ ea) & 0xff00)) ++m_cycles;
@@ -1032,7 +906,6 @@ void emu816::op_bmi(emu816_addr_t ea)
 
 void emu816::op_bne(emu816_addr_t ea)
 {
-    TRACE("BNE");
 
     if (p.f_z == 0) {
         if (e && ((pc ^ ea) & 0xff00)) ++m_cycles;
@@ -1045,7 +918,6 @@ void emu816::op_bne(emu816_addr_t ea)
 
 void emu816::op_bpl(emu816_addr_t ea)
 {
-    TRACE("BPL");
 
     if (p.f_n == 0) {
         if (e && ((pc ^ ea) & 0xff00)) ++m_cycles;
@@ -1058,7 +930,6 @@ void emu816::op_bpl(emu816_addr_t ea)
 
 void emu816::op_bra(emu816_addr_t ea)
 {
-    TRACE("BRA");
 
     if (e && ((pc ^ ea) & 0xff00)) ++m_cycles;
     pc = (uint16_t)ea;
@@ -1067,7 +938,6 @@ void emu816::op_bra(emu816_addr_t ea)
 
 void emu816::op_brk(emu816_addr_t ea)
 {
-    TRACE("BRK");
 
     if (e) {
         pushuint16_t(pc);
@@ -1077,7 +947,7 @@ void emu816::op_brk(emu816_addr_t ea)
         p.f_d = 0;
         pbr = 0;
 
-        pc = getWord(0xfffe);
+        pc = loadWord(0xfffe);
         m_cycles += 7;
     }
     else {
@@ -1089,14 +959,13 @@ void emu816::op_brk(emu816_addr_t ea)
         p.f_d = 0;
         pbr = 0;
 
-        pc = getWord(0xffe6);
+        pc = loadWord(0xffe6);
         m_cycles += 8;
     }
 }
 
 void emu816::op_brl(emu816_addr_t ea)
 {
-    TRACE("BRL");
 
     pc = (uint16_t)ea;
     m_cycles += 3;
@@ -1104,7 +973,6 @@ void emu816::op_brl(emu816_addr_t ea)
 
 void emu816::op_bvc(emu816_addr_t ea)
 {
-    TRACE("BVC");
 
     if (p.f_v == 0) {
         if (e && ((pc ^ ea) & 0xff00)) ++m_cycles;
@@ -1117,7 +985,6 @@ void emu816::op_bvc(emu816_addr_t ea)
 
 void emu816::op_bvs(emu816_addr_t ea)
 {
-    TRACE("BVS");
 
     if (p.f_v == 1) {
         if (e && ((pc ^ ea) & 0xff00)) ++m_cycles;
@@ -1130,7 +997,6 @@ void emu816::op_bvs(emu816_addr_t ea)
 
 void emu816::op_clc(emu816_addr_t ea)
 {
-    TRACE("CLC");
 
     setc(0);
     m_cycles += 2;
@@ -1138,7 +1004,6 @@ void emu816::op_clc(emu816_addr_t ea)
 
 void emu816::op_cld(emu816_addr_t ea)
 {
-    TRACE("CLD")
 
     setd(0);
     m_cycles += 2;
@@ -1146,7 +1011,6 @@ void emu816::op_cld(emu816_addr_t ea)
 
 void emu816::op_cli(emu816_addr_t ea)
 {
-    TRACE("CLI")
 
     seti(0);
     m_cycles += 2;
@@ -1154,7 +1018,6 @@ void emu816::op_cli(emu816_addr_t ea)
 
 void emu816::op_clv(emu816_addr_t ea)
 {
-    TRACE("CLD")
 
     setv(0);
     m_cycles += 2;
@@ -1162,10 +1025,9 @@ void emu816::op_clv(emu816_addr_t ea)
 
 void emu816::op_cmp(emu816_addr_t ea)
 {
-    TRACE("CMP");
 
     if (e || p.f_m) {
-        uint8_t	data = getByte(ea);
+        uint8_t	data = loadByte(ea);
         uint16_t	temp = a.b - data;
 
         setc(temp & 0x100);
@@ -1173,7 +1035,7 @@ void emu816::op_cmp(emu816_addr_t ea)
         m_cycles += 2;
     }
     else {
-        uint16_t	data = getWord(ea);
+        uint16_t	data = loadWord(ea);
         emu816_addr_t	temp = a.w - data;
 
         setc(temp & 0x10000L);
@@ -1184,7 +1046,6 @@ void emu816::op_cmp(emu816_addr_t ea)
 
 void emu816::op_cop(emu816_addr_t ea)
 {
-    TRACE("COP");
 
     if (e) {
         pushuint16_t(pc);
@@ -1194,7 +1055,7 @@ void emu816::op_cop(emu816_addr_t ea)
         p.f_d = 0;
         pbr = 0;
 
-        pc = getWord(0xfff4);
+        pc = loadWord(0xfff4);
         m_cycles += 7;
     }
     else {
@@ -1206,17 +1067,16 @@ void emu816::op_cop(emu816_addr_t ea)
         p.f_d = 0;
         pbr = 0;
 
-        pc = getWord(0xffe4);
+        pc = loadWord(0xffe4);
         m_cycles += 8;
     }
 }
 
 void emu816::op_cpx(emu816_addr_t ea)
 {
-    TRACE("CPX");
 
     if (e || p.f_x) {
-        uint8_t	data = getByte(ea);
+        uint8_t	data = loadByte(ea);
         uint16_t	temp = x.b - data;
 
         setc(temp & 0x100);
@@ -1224,7 +1084,7 @@ void emu816::op_cpx(emu816_addr_t ea)
         m_cycles += 2;
     }
     else {
-        uint16_t	data = getWord(ea);
+        uint16_t	data = loadWord(ea);
         emu816_addr_t	temp = x.w - data;
 
         setc(temp & 0x10000);
@@ -1235,10 +1095,9 @@ void emu816::op_cpx(emu816_addr_t ea)
 
 void emu816::op_cpy(emu816_addr_t ea)
 {
-    TRACE("CPY");
 
     if (e || p.f_x) {
-        uint8_t	data = getByte(ea);
+        uint8_t	data = loadByte(ea);
         uint16_t	temp = y.b - data;
 
         setc(temp & 0x100);
@@ -1246,7 +1105,7 @@ void emu816::op_cpy(emu816_addr_t ea)
         m_cycles += 2;
     }
     else {
-        uint16_t	data = getWord(ea);
+        uint16_t	data = loadWord(ea);
         emu816_addr_t	temp = y.w - data;
 
         setc(temp & 0x10000);
@@ -1257,19 +1116,18 @@ void emu816::op_cpy(emu816_addr_t ea)
 
 void emu816::op_dec(emu816_addr_t ea)
 {
-    TRACE("DEC");
 
     if (e || p.f_m) {
-        register uint8_t data = getByte(ea);
+        register uint8_t data = loadByte(ea);
 
-        setByte(ea, --data);
+        storeByte(ea, --data);
         setnz_b(data);
         m_cycles += 4;
     }
     else {
-        register uint16_t data = getWord(ea);
+        register uint16_t data = loadWord(ea);
 
-        setWord(ea, --data);
+        storeWord(ea, --data);
         setnz_w(data);
         m_cycles += 5;
     }
@@ -1277,7 +1135,6 @@ void emu816::op_dec(emu816_addr_t ea)
 
 void emu816::op_deca(emu816_addr_t ea)
 {
-    TRACE("DEC");
 
     if (e || p.f_m)
         setnz_b(--a.b);
@@ -1289,7 +1146,6 @@ void emu816::op_deca(emu816_addr_t ea)
 
 void emu816::op_dex(emu816_addr_t ea)
 {
-    TRACE("DEX");
 
     if (e || p.f_x)
         setnz_b(x.b -= 1);
@@ -1301,7 +1157,6 @@ void emu816::op_dex(emu816_addr_t ea)
 
 void emu816::op_dey(emu816_addr_t ea)
 {
-    TRACE("DEY");
 
     if (e || p.f_x)
         setnz_b(y.b -= 1);
@@ -1313,33 +1168,31 @@ void emu816::op_dey(emu816_addr_t ea)
 
 void emu816::op_eor(emu816_addr_t ea)
 {
-    TRACE("EOR");
 
     if (e || p.f_m) {
-        setnz_b(a.b ^= getByte(ea));
+        setnz_b(a.b ^= loadByte(ea));
         m_cycles += 2;
     }
     else {
-        setnz_w(a.w ^= getWord(ea));
+        setnz_w(a.w ^= loadWord(ea));
         m_cycles += 3;
     }
 }
 
 void emu816::op_inc(emu816_addr_t ea)
 {
-    TRACE("INC");
 
     if (e || p.f_m) {
-        register uint8_t data = getByte(ea);
+        register uint8_t data = loadByte(ea);
 
-        setByte(ea, ++data);
+        storeByte(ea, ++data);
         setnz_b(data);
         m_cycles += 4;
     }
     else {
-        register uint16_t data = getWord(ea);
+        register uint16_t data = loadWord(ea);
 
-        setWord(ea, ++data);
+        storeWord(ea, ++data);
         setnz_w(data);
         m_cycles += 5;
     }
@@ -1347,7 +1200,6 @@ void emu816::op_inc(emu816_addr_t ea)
 
 void emu816::op_inca(emu816_addr_t ea)
 {
-    TRACE("INC");
 
     if (e || p.f_m)
         setnz_b(++a.b);
@@ -1359,7 +1211,6 @@ void emu816::op_inca(emu816_addr_t ea)
 
 void emu816::op_inx(emu816_addr_t ea)
 {
-    TRACE("INX");
 
     if (e || p.f_x)
         setnz_b(++x.b);
@@ -1371,7 +1222,6 @@ void emu816::op_inx(emu816_addr_t ea)
 
 void emu816::op_iny(emu816_addr_t ea)
 {
-    TRACE("INY");
 
     if (e || p.f_x)
         setnz_b(++y.b);
@@ -1383,7 +1233,6 @@ void emu816::op_iny(emu816_addr_t ea)
 
 void emu816::op_jmp(emu816_addr_t ea)
 {
-    TRACE("JMP");
 
     pbr = lo(ea >> 16);
     pc = (uint16_t)ea;
@@ -1392,7 +1241,6 @@ void emu816::op_jmp(emu816_addr_t ea)
 
 void emu816::op_jsl(emu816_addr_t ea)
 {
-    TRACE("JSL");
 
     pushByte(pbr);
     pushuint16_t(pc - 1);
@@ -1404,7 +1252,6 @@ void emu816::op_jsl(emu816_addr_t ea)
 
 void emu816::op_jsr(emu816_addr_t ea)
 {
-    TRACE("JSR");
 
     pushuint16_t(pc - 1);
 
@@ -1414,149 +1261,137 @@ void emu816::op_jsr(emu816_addr_t ea)
 
 void emu816::op_lda(emu816_addr_t ea)
 {
-    TRACE("LDA");
 
     if (e || p.f_m) {
-        setnz_b(a.b = getByte(ea));
+        setnz_b(a.b = loadByte(ea));
         m_cycles += 2;
     }
     else {
-        setnz_w(a.w = getWord(ea));
+        setnz_w(a.w = loadWord(ea));
         m_cycles += 3;
     }
 }
 
 void emu816::op_ldx(emu816_addr_t ea)
 {
-    TRACE("LDX");
 
     if (e || p.f_x) {
-        setnz_b(lo(x.w = getByte(ea)));
+        setnz_b(lo(x.w = loadByte(ea)));
         m_cycles += 2;
     }
     else {
-        setnz_w(x.w = getWord(ea));
+        setnz_w(x.w = loadWord(ea));
         m_cycles += 3;
     }
 }
 
 void emu816::op_ldy(emu816_addr_t ea)
 {
-    TRACE("LDY");
 
     if (e || p.f_x) {
-        setnz_b(lo(y.w = getByte(ea)));
+        setnz_b(lo(y.w = loadByte(ea)));
         m_cycles += 2;
     }
     else {
-        setnz_w(y.w = getWord(ea));
+        setnz_w(y.w = loadWord(ea));
         m_cycles += 3;
     }
 }
 
 void emu816::op_lsr(emu816_addr_t ea)
 {
-    TRACE("LSR");
 
     if (e || p.f_m) {
-        register uint8_t data = getByte(ea);
+        register uint8_t data = loadByte(ea);
 
         setc(data & 0x01);
         setnz_b(data >>= 1);
-        setByte(ea, data);
+        storeByte(ea, data);
         m_cycles += 4;
     }
     else {
-        register uint16_t data = getWord(ea);
+        register uint16_t data = loadWord(ea);
 
         setc(data & 0x0001);
         setnz_w(data >>= 1);
-        setWord(ea, data);
+        storeWord(ea, data);
         m_cycles += 5;
     }
 }
 
 void emu816::op_lsra(emu816_addr_t ea)
 {
-    TRACE("LSR");
 
     if (e || p.f_m) {
         setc(a.b & 0x01);
         setnz_b(a.b >>= 1);
-        setByte(ea, a.b);
+        storeByte(ea, a.b);
     }
     else {
         setc(a.w & 0x0001);
         setnz_w(a.w >>= 1);
-        setWord(ea, a.w);
+        storeWord(ea, a.w);
     }
     m_cycles += 2;
 }
 
 void emu816::op_mvn(emu816_addr_t ea)
 {
-    TRACE("MVN");
 
-    uint8_t src = getByte(ea + 1);
-    uint8_t dst = getByte(ea + 0);
+    uint8_t src = loadByte(ea + 1);
+    uint8_t dst = loadByte(ea + 0);
 
-    setByte(join(dbr = dst, y.w++), getByte(join(src, x.w++)));
+    storeByte(join(dbr = dst, y.w++), loadByte(join(src, x.w++)));
     if (--a.w != 0xffff) pc -= 3;
     m_cycles += 7;
 }
 
 void emu816::op_mvp(emu816_addr_t ea)
 {
-    TRACE("MVP");
 
-    uint8_t src = getByte(ea + 1);
-    uint8_t dst = getByte(ea + 0);
+    uint8_t src = loadByte(ea + 1);
+    uint8_t dst = loadByte(ea + 0);
 
-    setByte(join(dbr = dst, y.w--), getByte(join(src, x.w--)));
+    storeByte(join(dbr = dst, y.w--), loadByte(join(src, x.w--)));
     if (--a.w != 0xffff) pc -= 3;
     m_cycles += 7;
 }
 
 void emu816::op_nop(emu816_addr_t ea)
 {
-    TRACE("NOP");
 
     m_cycles += 2;
 }
 
 void emu816::op_ora(emu816_addr_t ea)
 {
-    TRACE("ORA");
 
     if (e || p.f_m) {
-        setnz_b(a.b |= getByte(ea));
+        setnz_b(a.b |= loadByte(ea));
         m_cycles += 2;
     }
     else {
-        setnz_w(a.w |= getWord(ea));
+        setnz_w(a.w |= loadWord(ea));
         m_cycles += 3;
     }
 }
 
 void emu816::op_pea(emu816_addr_t ea)
 {
-    TRACE("PEA");
 
-    pushuint16_t(getWord(ea));
+    pushuint16_t(loadWord(ea));
     m_cycles += 5;
 }
 
 void emu816::op_pei(emu816_addr_t ea)
 {
-    TRACE("PEI");
 
-    pushuint16_t(getWord(ea));
+    pushuint16_t(loadWord(ea));
     m_cycles += 6;
 }
 
 void emu816::op_per(emu816_addr_t ea)
 {
-    TRACE("PER");
 
     pushuint16_t((uint16_t) ea);
     m_cycles += 6;
@@ -1564,7 +1399,6 @@ void emu816::op_per(emu816_addr_t ea)
 
 void emu816::op_pha(emu816_addr_t ea)
 {
-    TRACE("PHA");
 
     if (e || p.f_m) {
         pushByte(a.b);
@@ -1578,7 +1412,6 @@ void emu816::op_pha(emu816_addr_t ea)
 
 void emu816::op_phb(emu816_addr_t ea)
 {
-    TRACE("PHB");
 
     pushByte(dbr);
     m_cycles += 3;
@@ -1586,7 +1419,6 @@ void emu816::op_phb(emu816_addr_t ea)
 
 void emu816::op_phd(emu816_addr_t ea)
 {
-    TRACE("PHD");
 
     pushuint16_t(dp.w);
     m_cycles += 4;
@@ -1594,7 +1426,6 @@ void emu816::op_phd(emu816_addr_t ea)
 
 void emu816::op_phk(emu816_addr_t ea)
 {
-    TRACE("PHK");
 
     pushByte(pbr);
     m_cycles += 3;
@@ -1602,7 +1433,6 @@ void emu816::op_phk(emu816_addr_t ea)
 
 void emu816::op_php(emu816_addr_t ea)
 {
-    TRACE("PHP");
 
     pushByte(p.b);
     m_cycles += 3;
@@ -1610,7 +1440,6 @@ void emu816::op_php(emu816_addr_t ea)
 
 void emu816::op_phx(emu816_addr_t ea)
 {
-    TRACE("PHX");
 
     if (e || p.f_x) {
         pushByte(x.b);
@@ -1624,7 +1453,6 @@ void emu816::op_phx(emu816_addr_t ea)
 
 void emu816::op_phy(emu816_addr_t ea)
 {
-    TRACE("PHY");
 
     if (e || p.f_x) {
         pushByte(y.b);
@@ -1638,7 +1466,6 @@ void emu816::op_phy(emu816_addr_t ea)
 
 void emu816::op_pla(emu816_addr_t ea)
 {
-    TRACE("PLA");
 
     if (e || p.f_m) {
         setnz_b(a.b = pullByte());
@@ -1652,7 +1479,6 @@ void emu816::op_pla(emu816_addr_t ea)
 
 void emu816::op_plb(emu816_addr_t ea)
 {
-    TRACE("PLB");
 
     setnz_b(dbr = pullByte());
     m_cycles += 4;
@@ -1660,7 +1486,6 @@ void emu816::op_plb(emu816_addr_t ea)
 
 void emu816::op_pld(emu816_addr_t ea)
 {
-    TRACE("PLD");
 
     setnz_w(dp.w = pulluint16_t());
     m_cycles += 5;
@@ -1668,7 +1493,6 @@ void emu816::op_pld(emu816_addr_t ea)
 
 void emu816::op_plk(emu816_addr_t ea)
 {
-    TRACE("PLK");
 
     setnz_b(dbr = pullByte());
     m_cycles += 4;
@@ -1676,7 +1500,6 @@ void emu816::op_plk(emu816_addr_t ea)
 
 void emu816::op_plp(emu816_addr_t ea)
 {
-    TRACE("PLP");
 
     if (e)
         p.b = pullByte() | 0x30;
@@ -1693,7 +1516,6 @@ void emu816::op_plp(emu816_addr_t ea)
 
 void emu816::op_plx(emu816_addr_t ea)
 {
-    TRACE("PLX");
 
     if (e || p.f_x) {
         setnz_b(lo(x.w = pullByte()));
@@ -1707,7 +1529,6 @@ void emu816::op_plx(emu816_addr_t ea)
 
 void emu816::op_ply(emu816_addr_t ea)
 {
-    TRACE("PLY");
 
     if (e || p.f_x) {
         setnz_b(lo(y.w = pullByte()));
@@ -1721,40 +1542,37 @@ void emu816::op_ply(emu816_addr_t ea)
 
 void emu816::op_rep(emu816_addr_t ea)
 {
-    TRACE("REP");
 
-    p.b &= ~getByte(ea);
+    p.b &= ~loadByte(ea);
     if (e) p.f_m = p.f_x = 1;
     m_cycles += 3;
 }
 
 void emu816::op_rol(emu816_addr_t ea)
 {
-    TRACE("ROL");
 
     if (e || p.f_m) {
-        register uint8_t data = getByte(ea);
+        register uint8_t data = loadByte(ea);
         register uint8_t carry = p.f_c ? 0x01 : 0x00;
 
         setc(data & 0x80);
         setnz_b(data = (data << 1) | carry);
-        setByte(ea, data);
+        storeByte(ea, data);
         m_cycles += 4;
     }
     else {
-        register uint16_t data = getWord(ea);
+        register uint16_t data = loadWord(ea);
         register uint16_t carry = p.f_c ? 0x0001 : 0x0000;
 
         setc(data & 0x8000);
         setnz_w(data = (data << 1) | carry);
-        setWord(ea, data);
+        storeWord(ea, data);
         m_cycles += 5;
     }
 }
 
 void emu816::op_rola(emu816_addr_t ea)
 {
-    TRACE("ROL");
 
     if (e || p.f_m) {
         register uint8_t carry = p.f_c ? 0x01 : 0x00;
@@ -1773,31 +1591,29 @@ void emu816::op_rola(emu816_addr_t ea)
 
 void emu816::op_ror(emu816_addr_t ea)
 {
-    TRACE("ROR");
 
     if (e || p.f_m) {
-        register uint8_t data = getByte(ea);
+        register uint8_t data = loadByte(ea);
         register uint8_t carry = p.f_c ? 0x80 : 0x00;
 
         setc(data & 0x01);
         setnz_b(data = (data >> 1) | carry);
-        setByte(ea, data);
+        storeByte(ea, data);
         m_cycles += 4;
     }
     else {
-        register uint16_t data = getWord(ea);
+        register uint16_t data = loadWord(ea);
         register uint16_t carry = p.f_c ? 0x8000 : 0x0000;
 
         setc(data & 0x0001);
         setnz_w(data = (data >> 1) | carry);
-        setWord(ea, data);
+        storeWord(ea, data);
         m_cycles += 5;
     }
 }
 
 void emu816::op_rora(emu816_addr_t ea)
 {
-    TRACE("ROR");
 
     if (e || p.f_m) {
         register uint8_t carry = p.f_c ? 0x80 : 0x00;
@@ -1816,7 +1632,6 @@ void emu816::op_rora(emu816_addr_t ea)
 
 void emu816::op_rti(emu816_addr_t ea)
 {
-    TRACE("RTI");
 
     if (e) {
         p.b = pullByte();
@@ -1834,7 +1649,6 @@ void emu816::op_rti(emu816_addr_t ea)
 
 void emu816::op_rtl(emu816_addr_t ea)
 {
-    TRACE("RTL");
 
     pc = pulluint16_t() + 1;
     pbr = pullByte();
@@ -1843,7 +1657,6 @@ void emu816::op_rtl(emu816_addr_t ea)
 
 void emu816::op_rts(emu816_addr_t ea)
 {
-    TRACE("RTS");
 
     pc = pulluint16_t() + 1;
     m_cycles += 6;
@@ -1851,10 +1664,9 @@ void emu816::op_rts(emu816_addr_t ea)
 
 void emu816::op_sbc(emu816_addr_t ea)
 {
-    TRACE("SBC");
 
     if (e || p.f_m) {
-        uint8_t	data = ~getByte(ea);
+        uint8_t	data = ~loadByte(ea);
         uint16_t	temp = a.b + data + p.f_c;
         
         if (p.f_d) {
@@ -1868,7 +1680,7 @@ void emu816::op_sbc(emu816_addr_t ea)
         m_cycles += 2;
     }
     else {
-        uint16_t	data = ~getWord(ea);
+        uint16_t	data = ~loadWord(ea);
         int		temp = a.w + data + p.f_c;
 
         if (p.f_d) {
@@ -1887,7 +1699,6 @@ void emu816::op_sbc(emu816_addr_t ea)
 
 void emu816::op_sec(emu816_addr_t ea)
 {
-    TRACE("SEC");
 
     setc(1);
     m_cycles += 2;
@@ -1895,7 +1706,6 @@ void emu816::op_sec(emu816_addr_t ea)
 
 void emu816::op_sed(emu816_addr_t ea)
 {
-    TRACE("SED");
 
     setd(1);
     m_cycles += 2;
@@ -1903,7 +1713,6 @@ void emu816::op_sed(emu816_addr_t ea)
 
 void emu816::op_sei(emu816_addr_t ea)
 {
-    TRACE("SEI");
 
     seti(1);
     m_cycles += 2;
@@ -1911,9 +1720,8 @@ void emu816::op_sei(emu816_addr_t ea)
 
 void emu816::op_sep(emu816_addr_t ea)
 {
-    TRACE("SEP");
 
-    p.b |= getByte(ea);
+    p.b |= loadByte(ea);
     if (e) p.f_m = p.f_x = 1;
 
     if (p.f_x) {
@@ -1925,21 +1733,19 @@ void emu816::op_sep(emu816_addr_t ea)
 
 void emu816::op_sta(emu816_addr_t ea)
 {
-    TRACE("STA");
 
     if (e || p.f_m) {
-        setByte(ea, a.b);
+        storeByte(ea, a.b);
         m_cycles += 2;
     }
     else {
-        setWord(ea, a.w);
+        storeWord(ea, a.w);
         m_cycles += 3;
     }
 }
 
 void emu816::op_stp(emu816_addr_t ea)
 {
-    TRACE("STP");
 
     pc -= 1;
     m_cycles += 3;
@@ -1947,49 +1753,45 @@ void emu816::op_stp(emu816_addr_t ea)
 
 void emu816::op_stx(emu816_addr_t ea)
 {
-    TRACE("STX");
 
     if (e || p.f_x) {
-        setByte(ea, x.b);
+        storeByte(ea, x.b);
         m_cycles += 2;
     }
     else {
-        setWord(ea, x.w);
+        storeWord(ea, x.w);
         m_cycles += 3;
     }
 }
 
 void emu816::op_sty(emu816_addr_t ea)
 {
-    TRACE("STY");
 
     if (e || p.f_x) {
-        setByte(ea, y.b);
+        storeByte(ea, y.b);
         m_cycles += 2;
     }
     else {
-        setWord(ea, y.w);
+        storeWord(ea, y.w);
         m_cycles += 3;
     }
 }
 
 void emu816::op_stz(emu816_addr_t ea)
 {
-    TRACE("STZ");
 
     if (e || p.f_m) {
-        setByte(ea, 0);
+        storeByte(ea, 0);
         m_cycles += 2;
     }
     else {
-        setWord(ea, 0);
+        storeWord(ea, 0);
         m_cycles += 3;
     }
 }
 
 void emu816::op_tax(emu816_addr_t ea)
 {
-    TRACE("TAX");
 
     if (e || p.f_x)
         setnz_b(lo(x.w = a.b));
@@ -2001,7 +1803,6 @@ void emu816::op_tax(emu816_addr_t ea)
 
 void emu816::op_tay(emu816_addr_t ea)
 {
-    TRACE("TAY");
 
     if (e || p.f_x)
         setnz_b(lo(y.w = a.b));
@@ -2013,7 +1814,6 @@ void emu816::op_tay(emu816_addr_t ea)
 
 void emu816::op_tcd(emu816_addr_t ea)
 {
-    TRACE("TCD");
 
     dp.w = a.w;
     m_cycles += 2;
@@ -2021,7 +1821,6 @@ void emu816::op_tcd(emu816_addr_t ea)
 
 void emu816::op_tdc(emu816_addr_t ea)
 {
-    TRACE("TDC");
 
     if (e || p.f_m)
         setnz_b(lo(a.w = dp.w));
@@ -2033,7 +1832,6 @@ void emu816::op_tdc(emu816_addr_t ea)
 
 void emu816::op_tcs(emu816_addr_t ea)
 {
-    TRACE("TCS");
 
     sp.w = e ? (0x0100 | a.b) : a.w;
     m_cycles += 2;
@@ -2041,19 +1839,18 @@ void emu816::op_tcs(emu816_addr_t ea)
 
 void emu816::op_trb(emu816_addr_t ea)
 {
-    TRACE("TRB");
 
     if (e || p.f_m) {
-        register uint8_t data = getByte(ea);
+        register uint8_t data = loadByte(ea);
 
-        setByte(ea, data & ~a.b);
+        storeByte(ea, data & ~a.b);
         setz((a.b & data) == 0);
         m_cycles += 4;
     }
     else {
-        register uint16_t data = getWord(ea);
+        register uint16_t data = loadWord(ea);
 
-        setWord(ea, data & ~a.w);
+        storeWord(ea, data & ~a.w);
         setz((a.w & data) == 0);
         m_cycles += 5;
     }
@@ -2061,19 +1858,18 @@ void emu816::op_trb(emu816_addr_t ea)
 
 void emu816::op_tsb(emu816_addr_t ea)
 {
-    TRACE("TSB");
 
     if (e || p.f_m) {
-        register uint8_t data = getByte(ea);
+        register uint8_t data = loadByte(ea);
 
-        setByte(ea, data | a.b);
+        storeByte(ea, data | a.b);
         setz((a.b & data) == 0);
         m_cycles += 4;
     }
     else {
-        register uint16_t data = getWord(ea);
+        register uint16_t data = loadWord(ea);
 
-        setWord(ea, data | a.w);
+        storeWord(ea, data | a.w);
         setz((a.w & data) == 0);
         m_cycles += 5;
     }
@@ -2081,7 +1877,6 @@ void emu816::op_tsb(emu816_addr_t ea)
 
 void emu816::op_tsc(emu816_addr_t ea)
 {
-    TRACE("TSC");
 
     if (e || p.f_m)
         setnz_b(lo(a.w = sp.w));
@@ -2093,7 +1888,6 @@ void emu816::op_tsc(emu816_addr_t ea)
 
 void emu816::op_tsx(emu816_addr_t ea)
 {
-    TRACE("TSX");
 
     if (e)
         setnz_b(x.b = sp.b);
@@ -2105,7 +1899,6 @@ void emu816::op_tsx(emu816_addr_t ea)
 
 void emu816::op_txa(emu816_addr_t ea)
 {
-    TRACE("TXA");
 
     if (e || p.f_m)
         setnz_b(a.b = x.b);
@@ -2117,7 +1910,6 @@ void emu816::op_txa(emu816_addr_t ea)
 
 void emu816::op_txs(emu816_addr_t ea)
 {
-    TRACE("TXS");
 
     if (e)
         sp.w = 0x0100 | x.b;
@@ -2129,7 +1921,6 @@ void emu816::op_txs(emu816_addr_t ea)
 
 void emu816::op_txy(emu816_addr_t ea)
 {
-    TRACE("TXY");
 
     if (e || p.f_x)
         setnz_b(lo(y.w = x.w));
@@ -2141,7 +1932,6 @@ void emu816::op_txy(emu816_addr_t ea)
 
 void emu816::op_tya(emu816_addr_t ea)
 {
-    TRACE("TYA");
 
     if (e || p.f_m)
         setnz_b(a.b = y.b);
@@ -2153,7 +1943,6 @@ void emu816::op_tya(emu816_addr_t ea)
 
 void emu816::op_tyx(emu816_addr_t ea)
 {
-    TRACE("TYX");
 
     if (e || p.f_x)
         setnz_b(lo(x.w = y.w));
@@ -2165,7 +1954,6 @@ void emu816::op_tyx(emu816_addr_t ea)
 
 void emu816::op_wai(emu816_addr_t ea)
 {
-    TRACE("WAI");
 
     pc -= 1;
     m_cycles += 3;
@@ -2173,11 +1961,10 @@ void emu816::op_wai(emu816_addr_t ea)
 
 void emu816::op_wdm(emu816_addr_t ea)
 {
-    TRACE("WDM");
 
-    switch (getByte(ea)) {
-    case 0x01:	cout << (char) a.b; break;
-    case 0x02:  cin >> a.b;         break;
+    switch (loadByte(ea)) {
+    // case 0x01:	cout << (char) a.b; break;
+    // case 0x02:  cin >> a.b;         break;
     case 0xff:	m_stopped = true;   break;
     }
     m_cycles += 3;
@@ -2185,7 +1972,6 @@ void emu816::op_wdm(emu816_addr_t ea)
 
 void emu816::op_xba(emu816_addr_t ea)
 {
-    TRACE("XBA");
 
     a.w = swap(a.w);
     setnz_b(a.b);
@@ -2194,7 +1980,6 @@ void emu816::op_xba(emu816_addr_t ea)
 
 void emu816::op_xce(emu816_addr_t ea)
 {
-    TRACE("XCE");
 
     uint8_t	oe = e;
 

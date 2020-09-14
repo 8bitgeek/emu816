@@ -25,11 +25,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-# define TRACE(MNEM)	{ if (trace) dump(MNEM, ea); }
-# define BYTES(N)		{ if (trace) bytes(N); pc += N; }
-# define SHOWPC()		{ if (trace) show(); }
-# define ENDL()			{ if (trace) cout << endl; }
-
 typedef uint32_t	    emu816_addr_t;
 typedef uint8_t         emu816_bit_t;
 
@@ -38,10 +33,11 @@ class emu816
 {
     public:
 
-        emu816(bool trace=false);
+        emu816();
         virtual ~emu816();
 
-        virtual void            reset(bool trace=false);
+        virtual void            setTrace(bool trace) {}
+        virtual void            reset();
         virtual void            step();
         virtual void            run();
         virtual void            stop();
@@ -49,24 +45,14 @@ class emu816
         uint32_t                cycles();
         bool                    stopped();
 
-        // Define the memory areas and sizes
-        virtual void            setMemory (emu816_addr_t memMask, emu816_addr_t ramSize, const uint8_t *pROM) = 0;
-        virtual void            setMemory (emu816_addr_t memMask, emu816_addr_t ramSize, uint8_t *pRAM, const uint8_t *pROM) = 0;
+        virtual uint8_t         loadByte(emu816_addr_t ea) = 0;
+        virtual void            storeByte(emu816_addr_t ea, uint8_t data) = 0;
 
-        virtual uint8_t         getByte(emu816_addr_t ea) = 0;
-        virtual uint16_t        getWord(emu816_addr_t ea) = 0;
+        virtual uint16_t        loadWord(emu816_addr_t ea) = 0;
         virtual emu816_addr_t   getAddr(emu816_addr_t ea) = 0;
-        virtual void            setByte(emu816_addr_t ea, uint8_t data) = 0;
-        virtual void            setWord(emu816_addr_t ea, uint16_t data) = 0;
+        virtual void            storeWord(emu816_addr_t ea, uint16_t data) = 0;
 
-        uint8_t                 lo(uint16_t value);
-        uint8_t                 hi(uint16_t value);
-        emu816_addr_t           bank(uint8_t b);
-        uint16_t                join(uint8_t l, uint8_t h);
-        emu816_addr_t           join(uint8_t b, uint16_t a);
-        uint16_t                swap(uint16_t value);
-
-    private:
+    protected:
 
         union FLAGS {
             struct {
@@ -86,25 +72,31 @@ class emu816
 
         union REGS {
             uint8_t			b;
-            uint16_t			w;
+            uint16_t		w;
         }   a, x, y, sp, dp;
 
         uint16_t		    pc;
-        uint8_t		    pbr, dbr;
+        uint8_t		        pbr, dbr;
 
-        bool		    m_stopped;
-        uint32_t        m_cycles;
-        bool		    trace;
+        uint8_t                 lo(uint16_t value);
+        uint8_t                 hi(uint16_t value);
+        emu816_addr_t           bank(uint8_t b);
+        uint16_t                join(uint8_t l, uint8_t h);
+        emu816_addr_t           join(uint8_t b, uint16_t a);
+        uint16_t                swap(uint16_t value);
 
-        void show();
-        void bytes(uint32_t);
-        void dump(const char *, emu816_addr_t);
-        char *toHex(uint32_t value, uint32_t digits);
+   private:
 
-        void pushByte(uint8_t value);
-        void pushuint16_t(uint16_t value);
-        uint8_t pullByte();
-        uint16_t pulluint16_t();
+        inline void             fetch(uint32_t count) {pc += count;} 
+
+        bool		            m_stopped;
+        uint32_t                m_cycles;
+
+        void                    pushByte(uint8_t value);
+        void                    pushuint16_t(uint16_t value);
+        uint8_t                 pullByte();
+        uint16_t                pulluint16_t();
+
         emu816_addr_t am_absl();
         emu816_addr_t am_absx();
         emu816_addr_t am_absy();
@@ -131,6 +123,7 @@ class emu816
         emu816_addr_t am_rela();
         emu816_addr_t am_srel();
         emu816_addr_t am_sriy();
+        
         void setn(uint32_t flag);
         void setv(uint32_t flag);
         void setd(uint32_t flag);

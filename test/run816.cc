@@ -27,27 +27,18 @@ using namespace std;
 
 #include <string.h>
 #include <time.h>
-#include <vm816.h>
+#include <dbg816.h>
 
-//==============================================================================
-// Memory Definitions
-//------------------------------------------------------------------------------
-
-// On Windows/Linux create a 512Kb RAM area - No ROM.
 #define	RAM_SIZE	(512 * 1024)
 #define MEM_MASK	(512 * 1024L - 1)
 
-bool trace = false;
-
-vm816 vm;
-
-
-//==============================================================================
+bool trace=false;
+vm816* vm=NULL;
 
 // Initialise the vm
 inline void setup()
 {
-	vm.setMemory(MEM_MASK, RAM_SIZE, NULL);
+	vm->setMemory(MEM_MASK, RAM_SIZE, NULL);
 }
 
 //==============================================================================
@@ -93,7 +84,6 @@ void load(char *filename)
 	string	line;
 
 	if (file.is_open()) {
-		cout << ">> Loading S28: " << filename << endl;
 
 		while (!file.eof()) {
 			file >> line;
@@ -105,7 +95,7 @@ void load(char *filename)
 					uint32_t addr = toWord(line, offset);
 					count -= 3;
 					while (count-- > 0) {
-						vm.setByte(addr++, toByte(line, offset));
+						vm->storeByte(addr++, toByte(line, offset));
 					}
 				}
 				else if (line[1] == '2') {
@@ -113,7 +103,7 @@ void load(char *filename)
 					uint32_t addr = toAddr(line, offset);
 					count -= 4;
 					while (count-- > 0) {
-						vm.setByte(addr++, toByte(line, offset));
+						vm->storeByte(addr++, toByte(line, offset));
 					}
 				}
 			}
@@ -133,13 +123,11 @@ int main(int argc, char **argv)
 {
 	int	index = 1;
 
-	setup();
-
 	while (index < argc) {
 		if (argv[index][0] != '-') break;
 
 		if (!strcmp(argv[index], "-t")) {
-			trace = true;
+			trace=true;
 			++index;
 			continue;
 		}
@@ -152,6 +140,9 @@ int main(int argc, char **argv)
 		cerr << "Invalid: option '" << argv[index] << "'" << endl;
 		return (1);
 	}
+
+    vm = trace ? (new dbg816) : (new vm816);
+	setup();
 
 	if (index < argc)
 		do {
@@ -166,17 +157,18 @@ int main(int argc, char **argv)
 
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
 
-	vm.reset(trace);
-	vm.run();
+	vm->reset();
+    vm->setTrace(trace);
+	vm->run();
 
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
 
 	double secs = (end.tv_sec + end.tv_nsec / 1000000000.0)
 		    - (start.tv_sec + start.tv_nsec / 1000000000.0);
 
-	double speed = vm.cycles() / secs;
+	double speed = vm->cycles() / secs;
 
-	cout << endl << "Executed " << vm.cycles() << " in " << secs << " Secs";
+	cout << endl << "Executed " << vm->cycles() << " in " << secs << " Secs";
 	cout << endl << "Overall CPU Frequency = ";
 	if (speed < 1000.0)
 		cout << speed << " Hz";
@@ -187,6 +179,8 @@ int main(int argc, char **argv)
 			cout << (speed /= 1000.0) << " Mhz";
 	}
 	cout << endl;
+
+    delete vm;
 
 	return(0);
 }

@@ -27,12 +27,12 @@ The following virtual methods are provided for application memory and I/O mappin
         
         // FIXME - emu816 lib should not know about ROM/RAM and size.
         //         let's refactor this         
-        virtual void setMemory (Addr memMask, Addr ramSize, const Byte *pROM);
-        virtual void setMemory (Addr memMask, Addr ramSize, Byte *pRAM, const Byte *pROM);
+        virtual void setMemory (Addr memMask, Addr ramSize, const uint8_t *pROM);
+        virtual void setMemory (Addr memMask, Addr ramSize, uint8_t *pRAM, const uint8_t *pROM);
 
-        virtual Byte getByte(Addr ea);
+        virtual uint8_t getByte(Addr ea);
         virtual Word getWord(Addr ea);
         virtual Addr getAddr(Addr ea);
-        virtual void setByte(Addr ea, Byte data);
+        virtual void setByte(Addr ea, uint8_t data);
         virtual void setWord(Addr ea, Word data);
 ```

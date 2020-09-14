@@ -19,40 +19,29 @@
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
 
-#ifndef MEM816_H
-#define MEM816_H
+#ifndef DBG816_H
+#define DBG816_H
 
-#include <wdc816.h>
+#include <vm816.h>
+#include <stdlib.h>
+#include <stdint.h>
 
-// The mem816 class defines a set of standard methods for defining and accessing
-// the emulated memory area.
-
-class mem816 : public wdc816
+class dbg816 : public vm816
 {
     public:
 
-        // Define the memory areas and sizes
-        virtual void setMemory (Addr memMask, Addr ramSize, const Byte *pROM);
-        virtual void setMemory (Addr memMask, Addr ramSize, Byte *pRAM, const Byte *pROM);
+        dbg816();
+        virtual ~dbg816();
 
-        virtual Byte getByte(Addr ea);
-        virtual Word getWord(Addr ea);
-        virtual Addr getAddr(Addr ea);
-        virtual void setByte(Addr ea, Byte data);
-        virtual void setWord(Addr ea, Word data);
-
-    protected:
-
-        mem816();
-        virtual ~mem816();
-
-        Addr		memMask;		// The address mask pattern
-        Addr		ramSize;		// The amount of RAM
+        virtual void        step();
 
     private:
 
-        Byte	    *pRAM;			// Base of RAM memory array
-        const Byte  *pROM;			// Base of ROM memory array
-
+        void                dump();
+        void                csi();
+        void                home();
+        void                clear();
 };
-#endif
+
+#endif 
+

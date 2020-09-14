@@ -19,38 +19,35 @@
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
 
-#ifndef WDC816_H
-#define WDC816_H
+#ifndef VM816_H
+#define VM816_H
 
-#include <stddef.h>
-#include <stdint.h>
+#include <emu816.h>
 
-// The wdc816 class defines common types for 8-, 16- and 24-bit data values and
-// a set of common functions for manipulating them.
-
-class wdc816
+class vm816 : public emu816
 {
     public:
 
-        // Common types for memory and register sizes
-        typedef uint8_t	        Bit;
-        typedef uint8_t	        Byte;
-        typedef uint16_t	    Word;
-        typedef uint32_t	    Addr;
+        vm816();
+        virtual ~vm816();
 
-        char *toHex(uint32_t value, uint32_t digits);
+        // Define the memory areas and sizes
+        virtual void            setMemory (emu816_addr_t memMask, emu816_addr_t ramSize, const uint8_t *pROM);
+        virtual void            setMemory (emu816_addr_t memMask, emu816_addr_t ramSize, uint8_t *pRAM, const uint8_t *pROM);
 
-        Byte lo(Word value);
-        Byte hi(Word value);
-        Addr bank(Byte b);
-        Word join(Byte l, Byte h);
-        Addr join(Byte b, Word a);
-        Word swap(Word value);
+        virtual uint8_t         loadByte(emu816_addr_t ea);
+        virtual void            storeByte(emu816_addr_t ea, uint8_t data);
+        virtual uint16_t        loadWord(emu816_addr_t ea);
+        virtual void            storeWord(emu816_addr_t ea, uint16_t data);
+        virtual emu816_addr_t   getAddr(emu816_addr_t ea);
 
-    protected:
+    private:
 
-        wdc816();
-        virtual ~wdc816();
-        
+        emu816_addr_t		    memMask;		// The address mask pattern
+        emu816_addr_t		    ramSize;		// The amount of RAM
+
+        uint8_t*                pRAM;			// Base of RAM memory array
+        const uint8_t*          pROM;			// Base of ROM memory array
+
 };
 #endif

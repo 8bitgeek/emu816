@@ -36,7 +36,6 @@ class emu816
         emu816();
         virtual ~emu816();
 
-        virtual void            setTrace(bool trace) {}
         virtual void            reset();
         virtual void            step();
         virtual void            run();
@@ -45,13 +44,13 @@ class emu816
         uint32_t                cycles();
         bool                    stopped();
 
-        virtual uint8_t         loadByte(emu816_addr_t ea) = 0;
-        virtual void            storeByte(emu816_addr_t ea, uint8_t data) = 0;
+        virtual uint8_t         load8(emu816_addr_t ea) = 0;
+        virtual void            store8(emu816_addr_t ea, uint8_t data) = 0;
 
-        virtual uint16_t        loadWord(emu816_addr_t ea) = 0;
-        virtual void            storeWord(emu816_addr_t ea, uint16_t data) = 0;
+        virtual uint16_t        load16(emu816_addr_t ea) = 0;
+        virtual void            store16(emu816_addr_t ea, uint16_t data) = 0;
 
-        virtual emu816_addr_t   getAddr(emu816_addr_t ea) = 0;
+        virtual emu816_addr_t   loadAddr(emu816_addr_t ea) = 0;
 
     protected:
 
@@ -88,7 +87,7 @@ class emu816
 
    private:
 
-        inline void             stepFetch(uint32_t count) {pc += count;} 
+        inline void             addPC(uint32_t count) {pc+=count;}
 
         bool		            m_stopped;
         uint32_t                m_cycles;

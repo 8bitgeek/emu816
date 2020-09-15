@@ -51,7 +51,7 @@ void vm816::setMemory(emu816_addr_t memMask, emu816_addr_t ramSize, uint8_t *pRA
 }
 
 // Fetch a uint8_t from memory
-uint8_t vm816::loadByte(emu816_addr_t ea)
+uint8_t vm816::load8(emu816_addr_t ea)
 {
     if ((ea &= memMask) < ramSize)
         return (pRAM[ea]);
@@ -60,27 +60,27 @@ uint8_t vm816::loadByte(emu816_addr_t ea)
 }
 
 // Fetch a word from memory
-uint16_t vm816::loadWord(emu816_addr_t ea)
+uint16_t vm816::load16(emu816_addr_t ea)
 {
-        return (join(loadByte(ea + 0), loadByte(ea + 1)));
+        return (join(load8(ea + 0), load8(ea + 1)));
 }
 
 // Fetch a long address from memory
-emu816_addr_t vm816::getAddr(emu816_addr_t ea)
+emu816_addr_t vm816::loadAddr(emu816_addr_t ea)
 {
-    return (join(loadByte(ea + 2), loadWord(ea + 0)));
+    return (join(load8(ea + 2), load16(ea + 0)));
 }
 
 // Write a uint8_t to memory
-void vm816::storeByte(emu816_addr_t ea, uint8_t data)
+void vm816::store8(emu816_addr_t ea, uint8_t data)
 {
     if ((ea &= memMask) < ramSize)
         pRAM[ea] = data;
 }
 
 // Write a word to memory
-void vm816::storeWord(emu816_addr_t ea, uint16_t data)
+void vm816::store16(emu816_addr_t ea, uint16_t data)
 {
-    storeByte(ea + 0, lo(data));
-    storeByte(ea + 1, hi(data));
+    store8(ea + 0, lo(data));
+    store8(ea + 1, hi(data));
 }

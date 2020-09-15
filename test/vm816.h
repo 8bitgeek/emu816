@@ -39,7 +39,7 @@ class vm816 : public emu816
         virtual void            store8(emu816_addr_t ea, uint8_t data);
         virtual uint16_t        load16(emu816_addr_t ea);
         virtual void            store16(emu816_addr_t ea, uint16_t data);
-        virtual emu816_addr_t   loadAddr(emu816_addr_t ea);
+        virtual emu816_addr_t   load24(emu816_addr_t ea);
 
     private:
 

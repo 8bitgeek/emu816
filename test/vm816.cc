@@ -66,7 +66,7 @@ uint16_t vm816::load16(emu816_addr_t ea)
 }
 
 // Fetch a long address from memory
-emu816_addr_t vm816::loadAddr(emu816_addr_t ea)
+emu816_addr_t vm816::load24(emu816_addr_t ea)
 {
     return (join(load8(ea + 2), load16(ea + 0)));
 }

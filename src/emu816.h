@@ -50,7 +50,7 @@ class emu816
         virtual uint16_t        load16(emu816_addr_t ea) = 0;
         virtual void            store16(emu816_addr_t ea, uint16_t data) = 0;
 
-        virtual emu816_addr_t   loadAddr(emu816_addr_t ea) = 0;
+        virtual emu816_addr_t   load24(emu816_addr_t ea) = 0;
 
     protected:
 

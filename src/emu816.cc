@@ -470,7 +470,7 @@ emu816_addr_t emu816::am_abxi()
 // Absolute Long - >a
 emu816_addr_t emu816::am_alng()
 {
-    emu816_addr_t ea = loadAddr(join(pbr, pc));
+    emu816_addr_t ea = load24(join(pbr, pc));
 
     addPC(3);
     m_cycles += 3;
@@ -480,7 +480,7 @@ emu816_addr_t emu816::am_alng()
 // Absolute Long Indexed - >a,X
 emu816_addr_t emu816::am_alnx()
 {
-    emu816_addr_t ea = loadAddr(join(pbr, pc)) + x.w;
+    emu816_addr_t ea = load24(join(pbr, pc)) + x.w;
 
     addPC(3);
     m_cycles += 3;
@@ -494,7 +494,7 @@ emu816_addr_t emu816::am_abil()
 
     addPC(2);
     m_cycles += 5;
-    return (loadAddr(ia));
+    return (load24(ia));
 }
 
 // Direct Page - d
@@ -564,7 +564,7 @@ emu816_addr_t emu816::am_dpil()
 
     addPC(1);
     m_cycles += 4;
-    return (loadAddr(bank(0) | (uint16_t)(dp.w + disp)));
+    return (load24(bank(0) | (uint16_t)(dp.w + disp)));
 }
 
 // Direct Page Indirect Long Indexed - [d],Y
@@ -574,7 +574,7 @@ emu816_addr_t emu816::am_dily()
 
     addPC(1);
     m_cycles += 4;
-    return (loadAddr(bank(0) | (uint16_t)(dp.w + disp)) + y.w);
+    return (load24(bank(0) | (uint16_t)(dp.w + disp)) + y.w);
 }
 
 // Implied/Stack

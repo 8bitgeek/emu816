@@ -40,11 +40,19 @@ class dbg816 : public vm816
 
     private:
 
+        typedef struct _opcode_
+        {
+            const char*     op;
+            uint8_t         sz;
+        } opcode_t;
+
         void                dump();
         void                csi();
         void                home();
         void                clear();
         void                move(uint8_t x, uint8_t y);
+
+        static opcode_t     opcode_map[];
 };
 
 #endif 

@@ -36,8 +36,8 @@ void dbg816::dump()
             p.f_z ? 'Z' : ' ',
             p.f_c ? 'C' : ' '
             );
-    printf( "PC:%02X:%04X OP:%02X\n", pbr, pc,  inherited::loadByte(join(pbr, pc++)) );
-    printf( "SP:%02X:%04X  D:%02X\n", 0, sp.w, inherited::loadByte(sp.w) );
+    printf( "PC:%02X:%04X OP:%02X\n", pbr, pc,  inherited::load8(join(pbr, pc++)) );
+    printf( "SP:%02X:%04X  D:%02X\n", 0, sp.w, inherited::load8(sp.w) );
     printf( "DR:%02X:%04X\n", 0, dp.w );
     printf( " Y:%02X:%04X\n", dbr, y.w );
     printf( " X:%02X:%04X\n", dbr, x.w );
@@ -69,19 +69,19 @@ void dbg816::move(uint8_t x, uint8_t y)
 }
 
 
-uint8_t dbg816::loadByte(emu816_addr_t ea)
+uint8_t dbg816::load8(emu816_addr_t ea)
 {
-    uint8_t data = inherited::loadByte(ea);
+    uint8_t data = inherited::load8(ea);
     move(0,7);
     printf( "RD:%02X:%04X  D:%02X\n",ea>>16,ea&0xFFFF,data );
     return data;
 }
 
-void dbg816::storeByte(emu816_addr_t ea, uint8_t data)
+void dbg816::store8(emu816_addr_t ea, uint8_t data)
 {
     move(0,8);
     printf( "WR:%02X:%04X  D:%02X\n",ea>>16,ea&0xFFFF,data );
-    inherited::storeByte(ea,data);
+    inherited::store8(ea,data);
 }
 
 

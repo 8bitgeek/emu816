@@ -2,40 +2,31 @@
 
 Forked from https://github.com/andrew-jacobs/emu816
 
-## Building the library (*nix)
+## Compiling
 
 ```
-cd src
 make
 ```
 
-## Building the test app (*nix)
+## Running a test
+
+* NOTE: The contents of 'test' are currently transient, a place holder for verification tests.
 
 ```
 cd test
-make
-```
-
-## Running the test app (*nix)
-
-```
-./emu816 simple.s28
+./run816 simple.s28
 ```
 
 ## Implementing application memory model
 
-The following virtual methods are provided for application memory and I/O mapping.
+The application memory map may be accomplished by overloading the following virtual methods.
 
 ```C++
-        
-        // FIXME - emu816 lib should not know about ROM/RAM and size.
-        //         let's refactor this         
-        virtual void setMemory (Addr memMask, Addr ramSize, const uint8_t *pROM);
-        virtual void setMemory (Addr memMask, Addr ramSize, uint8_t *pRAM, const uint8_t *pROM);
+        virtual uint8_t         load8(emu816_addr_t ea);
+        virtual void            store8(emu816_addr_t ea, uint8_t data);
 
-        virtual uint8_t getByte(Addr ea);
-        virtual Word getWord(Addr ea);
-        virtual Addr getAddr(Addr ea);
-        virtual void setByte(Addr ea, uint8_t data);
-        virtual void setWord(Addr ea, Word data);
+        virtual uint16_t        load16(emu816_addr_t ea);
+        virtual void            store16(emu816_addr_t ea, uint16_t data);
+
+        virtual emu816_addr_t   load24(emu816_addr_t ea);
 ```

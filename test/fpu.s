@@ -133,76 +133,87 @@ PCFLAG		=	%00000001	; Carry flag
 PFALL		=	PNFLAG+PVFLAG+PZFLAG+PCFLAG
 	
 ; set A/M 16 bit
-ACC16:		.MACRO
-	.MLIST
+.MACRO  ACC16	
+	; .MLIST
 	rep	#PMFLAG
-	.LONGA	on
-	.MNLIST
-.ENDM
+    .A16
+	; .LONGA	on
+	; .MNLIST
+.ENDMACRO
 
 ; set A/M 16 bit, clear carry
-ACC16CLC:	.MACRO
-	.MLIST
-	rep	#(PMFLAG.OR.PCFLAG)
-	.LONGA	on
-	.MNLIST
-.ENDM
+.MACRO ACC16CLC
+	; .MLIST
+	rep	#(PMFLAG|PCFLAG)
+    .A16
+	; .LONGA	on
+	; .MNLIST
+.ENDMACRO
 
 ; set A/M 8 bit
-ACC08:		.MACRO
-	.MLIST
+.MACRO  ACC08		
+	; .MLIST
 	sep	#PMFLAG
-	.LONGA	off
-	.MNLIST
-.ENDM
+    .A8
+	; .LONGA	off
+	; .MNLIST
+.ENDMACRO
 
 ; set X/Y 16 bit
-INDEX16:	.MACRO
-	.MLIST
+.MACRO  INDEX16
+	; .MLIST
 	rep	#PXFLAG
-	.LONGI	on
-	.MNLIST
-.ENDM
+    .I16
+	; .LONGI	on
+	; .MNLIST
+.ENDMACRO
 
 ; set X/Y 8 bit
-INDEX08:	.MACRO
-	.MLIST
+.MACRO  INDEX08
+	; .MLIST
 	sep	#PXFLAG
-	.LONGI	off
-	.MNLIST
-.ENDM
+    .I8
+	; .LONGI	off
+	; .MNLIST
+.ENDMACRO
 
 ; set A/M & X/Y 16 bit
-CPU16:		.MACRO
-	.MLIST
-	rep	#(PMFLAG.OR.PXFLAG)
-	.LONGA	on
-	.LONGI	on
-	.MNLIST
-.ENDM
+.MACRO  CPU16
+	; .MLIST
+	rep	#(PMFLAG|PXFLAG)
+	.A16
+    .I16
+    ; .LONGA	on
+	; .LONGI	on
+	; .MNLIST
+.ENDMACRO
 
 ; set A/M & X/Y 16 bit & clear carry
-CPU16CLC:	.MACRO
-	.MLIST
-	rep	#(PMFLAG.OR.PXFLAG.OR.PCFLAG)
-	.LONGA	on
-	.LONGI	on
-	.MNLIST
-.ENDM
+.MACRO  CPU16CLC
+	; .MLIST
+	rep	#(PMFLAG|PXFLAG|PCFLAG)
+    .A16 
+    .I16
+	; .LONGA	on
+	; .LONGI	on
+	; .MNLIST
+.ENDMACRO
 
 ; set A/M & X/Y 8 bit
-CPU08:		.MACRO
-	.MLIST
-	sep	#(PMFLAG.OR.PXFLAG)
-	.LONGA	off
-	.LONGI	off
-	.MNLIST
-.ENDM
+.MACRO  CPU08
+	; .MLIST
+	sep	#(PMFLAG|PXFLAG)
+	.A8
+    .I8
+    ; .LONGA	off
+	; .LONGI	off
+	; .MNLIST
+.ENDMACRO
 
 ; define a long-pointer (24 bit)
-LP	.MACRO
+.MACRO  LP
 	.RES 3
-	.ENDM
+.ENDMACRO
 
 ;---------------------------------------------------------------------------
 ; direct page for floating point unit
@@ -211,21 +222,21 @@ LP	.MACRO
 _DPFPU:	.SECTION page0, common, ref_only, offset 0	;FPU D.P.
 
 MNTBITS		=	(16*8)	; significand bits + guard bits
-MANTSIZ		=	16	; significand size
-FREGSIZ		=	20	; floating point register size
+MANTSIZ		=	16	    ; significand size
+FREGSIZ		=	20	    ; floating point register size
 
-tm		.RES	16	; temp. mantissa
+tm:		    .RES	16	; temp. mantissa
 
-fsubnf		.BYTE		; subnormal flag used by fac2dec
+fsubnf:	    .BYTE   1	; subnormal flag used by fac2dec
 atncode		=	fsubnf	; fatanyx octant
 
-sgncmp		.BYTE		; sign comparison: fac vs. arg
+sgncmp:		.BYTE   1	; sign comparison: fac vs. arg
 
 ; floating Point accumulator (fac)
-facm		.RES	16	; guard bits (32 bits)+significand (80 bits)
-facexp		.WORD		; fac biased exponent
-facsgn		.BYTE		; fac mantissa sign
-facst		.BYTE		; fac status for floating point
+facm:       .RES    16  ; guard bits (32 bits)+significand (80 bits)
+facexp:		.WORD   1	; fac biased exponent
+facsgn:		.BYTE   1	; fac mantissa sign
+facst:		.BYTE   1	; fac status for floating point
 				; <7>: 1 if fac is invalid (nan or inf)
 				; <6>: 1 if fac=inf (with <7>=1)   
 				;      0 if fac=nan (with <7>=1)   
@@ -237,16 +248,16 @@ facst		.BYTE		; fac status for floating point
 				; <6>: 1 if facm = 0
 				; <5>: always '1'
 
-fexph		.WORD		; unbiased fac exponent sign extension
-facext		.WORD		; fac guard bits extension
+fexph:		.WORD   1	; unbiased fac exponent sign extension
+facext:		.WORD   1	; fac guard bits extension
 wftmp2		=	facext
 facsiz		=	facsgn	; integer only: size in bytes 	
 
 ; floating point operand (arg)
-argm		.RES	16	; guard bits (32 bits)+significand (80 bits)
-argexp		.WORD		; arg biased exponent
-argsgn		.BYTE		; arg mantissa sign
-argst		.BYTE		; arg status for floating point
+argm:		.RES	16	; guard bits (32 bits)+significand (80 bits)
+argexp:		.WORD   1	; arg biased exponent
+argsgn:		.BYTE   1	; arg mantissa sign
+argst:		.BYTE   1	; arg status for floating point
 				; <7>: 1 if arg is invalid (nan or inf)
 				; <6>: 1 if arg=inf (with <7>=1)   
 				;      0 if arg=nan (with <7>=1)   
@@ -257,30 +268,30 @@ argst		.BYTE		; arg status for floating point
 				; <6>: 1 if facm = 0
 				; <5>: always '1'
 			
-aexph		.WORD		; unbiased arg exponent sign extension
-argext		.WORD
+aexph:		.WORD   1	; unbiased arg exponent sign extension
+argext:		.WORD   1
 
 wftmp		=	aexph	; temp. word (int2dec, fpadd, fpsub)
 argsiz		=	argsgn	; integer only: size in bytes 	
 
-fcp		LP		; long pointer to flaot constants
-scsgn		.BYTE		; scaling sign
-scexp		.WORD		; scaling value
-dexp		.WORD		; decimal exponent
-dsgn		.BYTE		; decimal float sign
-pdeg		.BYTE		; polyn. degree
+fcp:	    LP		    ; long pointer to flaot constants
+scsgn:		.BYTE   1	; scaling sign
+scexp:		.WORD   1	; scaling value
+dexp:		.WORD   1	; decimal exponent
+dsgn:		.BYTE   1	; decimal float sign
+pdeg:		.BYTE   1	; polyn. degree
 powfg		=	pdeg	; flag used by fpowxy
 
-tlp		LP		; string long pointer
-fpidx		.BYTE		; string index
+tlp:	    LP		    ; string long pointer
+fpidx:		.BYTE   1	; string index
 		
-tfr0		.RES	20	; temp. float reg. 0
-tfr1		.RES	20	; temp. float reg. 1
-tfr2		.RES	20	; temp. float reg. 2
-tfr3		.RES	20	; temp. float reg. 3
-tfr4		.RES	20	; temp. float reg. 4
-tfr5		.RES	20	; temp. float reg. 5
-		.RES	4	; used by xcvt: doesn't change
+tfr0:		.RES	20	; temp. float reg. 0
+tfr1:		.RES	20	; temp. float reg. 1
+tfr2:		.RES	20	; temp. float reg. 2
+tfr3:		.RES	20	; temp. float reg. 3
+tfr4:		.RES	20	; temp. float reg. 4
+tfr5:		.RES	20	; temp. float reg. 5
+		    .RES	4	; used by xcvt: doesn't change
 
 XCVTEND		=	($ - 1)	; last byte of xcvt buffer
 
@@ -312,11 +323,11 @@ mcsgn		=	tfr5+12
 dvsor		=	tfr5+14
 quot		=	tfr5+16
 
-fpprec		.WORD		; precision
-fpfmt		.BYTE		; format
-fpaltf		.BYTE		; alternate format
-fpcap		.BYTE		; adding for lower case
-fpstyle		.BYTE		; flag 'F' style
+fpprec: 	.WORD   1	; precision
+fpfmt:		.BYTE   1	; format
+fpaltf:		.BYTE   1	; alternate format
+fpcap:		.BYTE   1	; adding for lower case
+fpstyle:	.BYTE   1	; flag 'F' style
 fpdot		=	pdeg	; decimal dot flag
 fpoct		=	fpfmt	; octant (circular func's)
 fpcsgn		=	fpaltf	; circular func's: argument sign
@@ -361,8 +372,10 @@ XCVTMAX		=	80		; max. size of decimal string
 
 	.CODE
 
-	.LONGA	off
-	.LONGI	off
+	; .LONGA	off
+	; .LONGI	off
+    .A8
+    .I8
 
 ;---------------------------------------------------------------------------
 ; addition & subtraction implementation
@@ -895,8 +908,10 @@ shrmx:
 ;-----
 shlmx:
 ;-----
-	.LONGA	on		; should be called with A/M=16 bit
-	.LONGI	off
+	; .LONGA	on		; should be called with A/M=16 bit
+	; .LONGI	off
+    .A16
+    .I8
 
 	sec
 	lda	<16,x		; C=unbiased exponent
@@ -955,7 +970,8 @@ shlmx:
 	dec	<20,x		; sign extension to 32 bit
 ?end:	rts
 
-	.LONGA	off
+	;.LONGA	off
+    .A8
 
 ; addtst - test operands before to execute addition/subtraction
 ;
@@ -1099,7 +1115,8 @@ fscale:
 	ldx	#facm		; shift right
 	jsr	shrmx
 	jmp	chkz		; underflow test
-	.LONGA	on
+	;.LONGA	on
+    .A16
 ?ps:	ldx	facm+15		; shift subnormal toward left
 	bmi	?fn
 	asl	facm
@@ -1117,7 +1134,8 @@ fscale:
 ?end2:	rts
 ?z:	ACC08			; return fac=0
 	jmp	fldz
-	.LONGA	on
+	;.LONGA	on
+    .A16
 ?fn:	stz	wftmp		; 32 bit exponent sign extension
 	lda	scexp
 	bpl	?p
@@ -1136,7 +1154,8 @@ fscale:
 	ACC08
 	jmp	fldinf
 
-	.LONGA	off
+	;.LONGA	off
+    .A8
 	
 ; scale10 - multiplies argument by a power of ten
 ;
@@ -1529,8 +1548,8 @@ ovfw:
 ;------
 chkovf:
 ;------
-	.LONGA	on
-
+	; .LONGA	on
+    .A16
 	cmp	#MAXEXP		; we check exponent for possible overflow
 	bcc	?end		; ok, no overflow after rounding
 	lda	#$FFFF		; check if mantissa is all one's
@@ -1554,7 +1573,8 @@ chkovf:
 	sec			; no rounding possible 
 ?end:	rts
 	
-	.LONGA	off
+	; .LONGA	off
+    .A8
 
 ; addexp - add exponent of fac & arg for multiplication/division
 ;
@@ -1646,8 +1666,10 @@ addexp:
 ;-----
 multm:
 ;-----
-	.LONGA	on
-	.LONGI	on
+	; .LONGA	on
+	; .LONGI	on
+    .A16 
+    .I16
 
 	lda	facm		; multiply any word of facm with whole argm
 	jsr	?mlt
@@ -1728,8 +1750,10 @@ multm:
 	stz	tm+14
 	rts
 	
-	.LONGA	off
-	.LONGI	off
+	; .LONGA	off
+	; .LONGI	off
+    .A8 
+    .I8
 
 ; divm - computes the division of the arg mantissa by fac mantissa
 ;
@@ -2380,7 +2404,8 @@ fldu128:
 	lda	#BIAS128	; biased exponent for 128 bit value	
 	bra	fldu
 
-	.LONGA	off
+	; .LONGA	off
+    .A8
 
 ; fldu64 - load fac with an unsigned 64 bit integer (n)
 ;
@@ -2411,7 +2436,8 @@ fldu64:
 	lda	#BIAS64		; biased exponent for 64 bit value	
 	bra	fldu
 
-	.LONGA	off
+	; .LONGA	off
+    .A8
 
 okz:	ACC08
 	clc
@@ -2440,7 +2466,8 @@ fldu32:
 	lda	#BIAS32		; biased exponent for 32 bit value	
 	bra	fldu
 
-	.LONGA	off
+	; .LONGA	off
+    .A8
 
 ; fldbyt - load fac with an unsigned 8 bit integer (n)
 ;
@@ -2463,7 +2490,8 @@ fldbyt:
 	lda	#BIAS8		; biased exponent for 8 bit value
 	bra	fldu
 
-	.LONGA	off
+	; .LONGA	off
+    .A8
 	
 ; fldu16 - load fac with an unsigned 16 bit integer (n)
 ;
@@ -9744,8 +9772,10 @@ fccmp:
 ;-----
 imult:
 ;-----
-	.LONGA	on
-	.LONGI	off
+	; .LONGA	on
+	; .LONGI	off
+    .A16
+    .I8
 
 	sta	mcand1		; store mcand1&mcand2
 	stx	mcand2
@@ -9788,7 +9818,8 @@ imult:
 	ldy	mcand1+1	; Y=result low-high byte
 	rts
 
-	.LONGA	off
+	; .LONGA	off
+    .A8
 
 ; unsigned division 16 bit
 ;
@@ -9806,8 +9837,10 @@ imult:
 ;-----
 udiv:
 ;-----
-	.LONGA	on
-	.LONGI	on
+	; .LONGA	on
+	; .LONGI	on
+    .A16 
+    .I16
 
 	stx	dvsor		; divisor	
 	tay			; Y=dividend
@@ -9834,8 +9867,9 @@ udiv:
 	lda	quot		; C=quotient
 	rts
 
-	.LONGA	off
-	.LONGI	off
-
+	; .LONGA	off
+	; .LONGI	off
+    .A8
+    .I8
 ; end of file
 

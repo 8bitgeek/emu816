@@ -32,7 +32,7 @@ using namespace std;
 #define	RAM_SIZE	(512 * 1024)
 #define MEM_MASK	(512 * 1024L - 1)
 
-bool trace=false;
+bool debug=false;
 vm816* vm=NULL;
 
 // Initialise the vm
@@ -95,7 +95,7 @@ void load(char *filename)
 					uint32_t addr = toWord(line, offset);
 					count -= 3;
 					while (count-- > 0) {
-						vm->storeByte(addr++, toByte(line, offset));
+						vm->store8(addr++, toByte(line, offset));
 					}
 				}
 				else if (line[1] == '2') {
@@ -103,7 +103,7 @@ void load(char *filename)
 					uint32_t addr = toAddr(line, offset);
 					count -= 4;
 					while (count-- > 0) {
-						vm->storeByte(addr++, toByte(line, offset));
+						vm->store8(addr++, toByte(line, offset));
 					}
 				}
 			}
@@ -126,14 +126,14 @@ int main(int argc, char **argv)
 	while (index < argc) {
 		if (argv[index][0] != '-') break;
 
-		if (!strcmp(argv[index], "-t")) {
-			trace=true;
+		if (!strcmp(argv[index], "-d")) {
+			debug=true;
 			++index;
 			continue;
 		}
 
 		if (!strcmp(argv[index], "-?")) {
-			cerr << "Usage: emu816 [-t] s19/28-file ..." << endl;
+			cerr << "Usage: emu816 [-d] s19/28-file ..." << endl;
 			return (1);
 		}
 
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 		return (1);
 	}
 
-    vm = trace ? (new dbg816) : (new vm816);
+    vm = debug ? (new dbg816) : (new vm816);
 	setup();
 
 	if (index < argc)
@@ -158,7 +158,6 @@ int main(int argc, char **argv)
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
 
 	vm->reset();
-    vm->setTrace(trace);
 	vm->run();
 
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);

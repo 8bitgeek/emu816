@@ -1,14 +1,31 @@
-#include <stdio.h>
 #include <stdint.h>
 
-uint32_t j;
-uint8_t storage[4];
+#define SZ (1024*8)
+
+uint8_t buf1[SZ];
+uint8_t buf2[SZ];
+
+void fl(uint8_t* a, uint8_t c, int sz)
+{
+	while(sz--)
+		*a++ = c;
+}
+
+void cp(uint8_t* a, uint8_t* b, int sz)
+{
+	while (sz--)
+		*a++ = *b++;
+}
 
 int main()
 {
-	for(j=0; j < 0xffff; j++)
-		printf("%04x\r",j);
-	printf("\n");
+	int n;
+	for(n=0; n < 0xFFFF; n++)
+	{
+		fl(buf1,0xaa,SZ);
+		cp(buf2,buf1,SZ);
+		cp(buf1,buf2,SZ);
+	}
 	return 0;
 }
 

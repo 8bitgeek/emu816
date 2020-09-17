@@ -1,6 +1,7 @@
 
-CPPFLAGS+=-O2 -I./ -I../src -DDEBUG
+CPPFLAGS+=-ggdb -I./ -I../src -I../libs19
 LIBEMU816=../src/libemu816.a
+LIBS19=../libs19/libs19.a
 
 all:	run816 test1 test2
 
@@ -17,7 +18,7 @@ clean:
 
 
 run816:	run816.o
-	g++ run816.cc vm816.cc dbg816.cc $(CPPFLAGS) $(LIBEMU816) -o run816
+	g++ run816.cc vm816.cc load816.cc dbg816.cc $(CPPFLAGS) $(LIBS19) $(LIBEMU816) -o run816
 
 test1: test1.c
 	cl65 -T --standard c99 -t sim65c02 -l test1.lst -m test1.map test1.c

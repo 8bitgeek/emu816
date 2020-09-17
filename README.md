@@ -5,6 +5,9 @@ Forked from https://github.com/andrew-jacobs/emu816
 ## Compiling
 
 ```
+git clone https://github.com/8bitgeek/libs19.git
+git submodule update --init --recursive
+git pull --recurse-submodules
 make
 ```
 

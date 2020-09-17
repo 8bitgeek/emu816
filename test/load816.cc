@@ -113,7 +113,7 @@ int load816::cb_meta_fn(srec_reader_t* srec_state)
     {
         uint32_t load_address = result->address+count;
         uint8_t data = result->data[count];
-        printf( "MT: %08x: %02X ", load_address, data );
+        // printf( "MT: %08x: %02X \n", load_address, data );
     }
     return 0;
 }
@@ -126,7 +126,7 @@ int load816::cb_store_fn(srec_reader_t* srec_state)
     {
         uint32_t load_address = result->address+count;
         uint8_t data = result->data[count];
-        printf( "LD: %08x: %02X ", load_address, data );
+        // printf( "LD: %08x: %02X \n", load_address, data );
         store8(load_address,data);
     }
     return 0;
@@ -140,7 +140,7 @@ int load816::cb_term_fn(srec_reader_t* srec_state)
     {
         uint32_t load_address = result->address+count;
         uint8_t data = result->data[count];
-        printf( "TM: %08x: %02X ", load_address, data );
+        // printf( "TM: %08x: %02X \n", load_address, data );
     }
     return 0;
 }

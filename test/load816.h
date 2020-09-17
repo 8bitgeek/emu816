@@ -19,35 +19,37 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  ****************************************************************************/
-#ifndef VM816_H
-#define VM816_H
+#ifndef LOAD816_H
+#define LOAD816_H
 
-#include <emu816.h>
+#include <vm816.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <srecreader.h>
 
-class vm816 : public emu816
+#define LOAD816_MAX_LINE    780
+
+class load816 : public vm816
 {
     public:
 
-        vm816();
-        virtual ~vm816();
+        load816(const char* name=NULL);
+        virtual ~load816();
 
-        // Define the memory areas and sizes
-        virtual void            setMemory (emu816_addr_t memMask, emu816_addr_t ramSize, const uint8_t *pROM);
-        virtual void            setMemory (emu816_addr_t memMask, emu816_addr_t ramSize, uint8_t *pRAM, const uint8_t *pROM);
+        bool                load(const char* name=NULL);
 
-        virtual uint8_t         load8(emu816_addr_t ea);
-        virtual void            store8(emu816_addr_t ea, uint8_t data);
-        virtual uint16_t        load16(emu816_addr_t ea);
-        virtual void            store16(emu816_addr_t ea, uint16_t data);
-        virtual emu816_addr_t   load24(emu816_addr_t ea);
+        int                 cb_meta_fn(srec_reader_t* srec_state);
+        int                 cb_store_fn(srec_reader_t* srec_state);
+        int                 cb_term_fn(srec_reader_t* srec_state);
 
     private:
 
-        emu816_addr_t		    memMask;		// The address mask pattern
-        emu816_addr_t		    ramSize;		// The amount of RAM
-
-        uint8_t*                pRAM;			// Base of RAM memory array
-        const uint8_t*          pROM;			// Base of ROM memory array
-
+        const char*         m_name;
+        srec_reader_t       m_srec_state;
+        FILE*               m_file;
+        char                m_line[LOAD816_MAX_LINE];
+        bool                m_success;
 };
-#endif
+
+#endif 
+

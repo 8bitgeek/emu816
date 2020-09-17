@@ -1,6 +1,6 @@
 TARGET=libemu816.a
 
-CPPFLAGS+=-O2 -I./
+CPPFLAGS+=-ggdb -I./
 
 all:	$(TARGET)
 

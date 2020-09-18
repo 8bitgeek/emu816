@@ -19,6 +19,7 @@
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
 #include <emu816.h>
+#include <stdio.h>
 
 emu816::emu816()
 : m_cycles(0)
@@ -72,7 +73,7 @@ void emu816::reset(uint32_t entry_point)
 	pbr = 0x00;
 	dbr = 0x00;
 	dp.w = 0x0000;
-	sp.w = 0x0100;
+	sp.w = 0x01FF;
     if ( entry_point != EMU816_INVALID_PC )
         pc = entry_point;
     else
@@ -1067,6 +1068,8 @@ void emu816::op_cop(emu816_addr_t ea)
         pbr = 0;
 
         pc = load16(0xfff4);
+        // fprintf(stderr,"0xfff4=%04X\n",pc);
+
         m_cycles += 7;
     }
     else {
@@ -1079,6 +1082,8 @@ void emu816::op_cop(emu816_addr_t ea)
         pbr = 0;
 
         pc = load16(0xffe4);
+        // fprintf(stderr,"0xffe4=%04X\n",pc);
+
         m_cycles += 8;
     }
 }

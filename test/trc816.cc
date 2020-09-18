@@ -54,7 +54,7 @@ void trc816::dump()
             p.f_z ? 'Z' : ' ',
             p.f_c ? 'C' : ' '
             );
-    printf( "PC:%02X:%04X OP:%02X [%s] ", pbr, pc, op, opcode_map[op].op );
+    printf( "PC:%02X:%04X OP:%02X [%s] %02X%02X ", pbr, pc, op, opcode_map[op].op, inherited::load8(join(pbr, (uint16_t)(pc+1))), inherited::load8(join(pbr, (uint16_t)(pc+2))) );
     printf( "SP:%02X:%04X  D:%02X ", 0, sp.w, inherited::load8(sp.w) );
     printf( " A:%02X:%04X ", 0, a.w );
     printf( "DR:%02X:%04X ", 0, dp.w );

@@ -19,7 +19,7 @@ void cp(uint8_t* a, uint8_t* b, int sz)
 
 int main()
 {
-	int n;
+	unsigned int n;
 	for(n=0; n < 0x00FF; n++)
 	{
 		fl(buf1,0xaa,SZ);

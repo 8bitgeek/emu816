@@ -110,7 +110,7 @@ void dbg816::dump()
             p.f_z ? 'Z' : ' ',
             p.f_c ? 'C' : ' '
             );
-    mvprintw( 2, 0, "PC:%02X:%04X OP:%02X [%s]", pbr, pc, op, opcode_map[op].op );
+    mvprintw( 2, 0, "PC:%02X:%04X OP:%02X [%s] %02X%02X", pbr, pc, op, opcode_map[op].op, inherited::load8(join(pbr, (uint16_t)(pc+1))), inherited::load8(join(pbr, (uint16_t)(pc+2))) );
     mvprintw( 3, 0, "SP:%02X:%04X  D:%02X", 0, sp.w, inherited::load8(sp.w) );
     mvprintw( 4, 0, " A:%02X:%04X", 0, a.w );
     mvprintw( 5, 0, "DR:%02X:%04X", 0, dp.w );

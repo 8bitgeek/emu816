@@ -21,6 +21,8 @@
  ****************************************************************************/
 #include <vm816.h>
 
+#define inherited emu816
+
 vm816::vm816()
 : memMask(0)
 , ramSize(0)
@@ -84,3 +86,16 @@ void vm816::store16(emu816_addr_t ea, uint16_t data)
     store8(ea + 0, lo(data));
     store8(ea + 1, hi(data));
 }
+
+void vm816::op_brk(emu816_addr_t ea)
+{
+    inherited::op_brk(ea);
+    op_rti(ea);
+}
+
+void vm816::op_cop(emu816_addr_t ea)
+{
+    inherited::op_cop(ea);
+    op_rti(ea);
+}
+

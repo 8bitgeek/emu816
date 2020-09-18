@@ -41,6 +41,11 @@ class vm816 : public emu816
         virtual void            store16(emu816_addr_t ea, uint16_t data);
         virtual emu816_addr_t   load24(emu816_addr_t ea);
 
+    protected: 
+
+        virtual void op_brk(emu816_addr_t ea);
+        virtual void op_cop(emu816_addr_t ea);
+
     private:
 
         emu816_addr_t		    memMask;		// The address mask pattern

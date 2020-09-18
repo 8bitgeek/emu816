@@ -27,27 +27,78 @@ using namespace std;
 #define inherited load816
 
 dbg816::dbg816()
+: m_debug_state(dbg_pause)
+, m_lines(0)
+, m_cols(0)
 { 
-    home();
-    clear();
+    initscr();
+    timeout(0);
+    raw();
+    noecho();
+    keypad(stdscr, TRUE);
+    refresh();
 }
 
 dbg816::~dbg816()
 { 
+    endwin();
 }
 
 void dbg816::step()
 {
+    banner();
     dump();
-    inherited::step();
+    input();
+    refresh();
+}
+
+void dbg816::input()
+{
+    int ch = getch();
+    switch( ch )
+    {
+        case 'q':
+        case 'Q':
+            set_debug_state(dbg_pause);
+            set_stopped(true);
+            erase();
+            break;
+        case 's':
+        case 'S':
+            set_debug_state(dbg_step);
+            inherited::step();
+            break;
+        case 'r':
+        case 'R':
+            set_debug_state(dbg_run);
+            break;
+        case 'p':
+        case 'P':
+            set_debug_state(dbg_pause);
+            break;
+        default:
+            if ( get_debug_state() == dbg_run )
+            {
+                inherited::step();
+            }
+            break;
+    }
+}
+
+void dbg816::banner()
+{
+    if ( m_lines != LINES || m_cols != COLS )
+    {
+        erase();
+    }
+    mvprintw( LINES-1, 0, "S)tep, R)un, P)uase, Q)uit");    
 }
 
 void dbg816::dump()
 {
     uint8_t op = inherited::load8(join(pbr, pc));
-    home();
-    printf( "CK:%08X:\n", cycles() );
-    printf( "F:%c%c%c%c%c%c%c%c\n",
+    mvprintw( 0, 0, "CK:%08X:", cycles() );
+    mvprintw( 1, 0, "F:%c%c%c%c%c%c%c%c",
             p.f_n ? 'N' : ' ',
             p.f_v ? 'V' : ' ',
             p.f_m ? 'M' : ' ',
@@ -57,51 +108,25 @@ void dbg816::dump()
             p.f_z ? 'Z' : ' ',
             p.f_c ? 'C' : ' '
             );
-    printf( "PC:%02X:%04X OP:%02X [%s]\n", pbr, pc, op, opcode_map[op].op );
-    printf( "SP:%02X:%04X  D:%02X\n", 0, sp.w, inherited::load8(sp.w) );
-    printf( "DR:%02X:%04X\n", 0, dp.w );
-    printf( " Y:%02X:%04X\n", dbr, y.w );
-    printf( " X:%02X:%04X\n", dbr, x.w );
+    mvprintw( 2, 0, "PC:%02X:%04X OP:%02X [%s]", pbr, pc, op, opcode_map[op].op );
+    mvprintw( 3, 0, "SP:%02X:%04X  D:%02X", 0, sp.w, inherited::load8(sp.w) );
+    mvprintw( 4, 0, "DR:%02X:%04X", 0, dp.w );
+    mvprintw( 5, 0, " Y:%02X:%04X", dbr, y.w );
+    mvprintw( 6, 0, " X:%02X:%04X", dbr, x.w );
 }
-
-void dbg816::csi()
-{
-    printf("%c[",0x1B);
-}
-
-void dbg816::home()
-{
-    csi();
-    printf("1;1H");
-}
-
-void dbg816::clear()
-{
-    csi();
-    putchar('J');
-}
-
-void dbg816::move(uint8_t x, uint8_t y)
-{
-    x+=1;
-    y+=1;
-    csi();
-    printf("%d;%dH",y,x);
-}
-
 
 uint8_t dbg816::load8(emu816_addr_t ea)
 {
     uint8_t data = inherited::load8(ea);
-    move(0,7);
-    printf( "RD:%02X:%04X  D:%02X\n",ea>>16,ea&0xFFFF,data );
+    mvprintw( 7, 0, "RD:%02X:%04X  D:%02X",ea>>16,ea&0xFFFF,data );
+    refresh();
     return data;
 }
 
 void dbg816::store8(emu816_addr_t ea, uint8_t data)
 {
-    move(0,8);
-    printf( "WR:%02X:%04X  D:%02X\n",ea>>16,ea&0xFFFF,data );
+    mvprintw( 8, 0, "WR:%02X:%04X  D:%02X",ea>>16,ea&0xFFFF,data );
+    refresh();
     inherited::store8(ea,data);
 }
 

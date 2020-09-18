@@ -33,7 +33,7 @@ using namespace std;
 #define	RAM_SIZE	(512 * 1024)
 #define MEM_MASK	(512 * 1024L - 1)
 
-int trace=(-1);
+int debug_trace=(-1);
 bool debug=false;
 load816* vm=NULL;
 timespec tstart;
@@ -47,7 +47,7 @@ void finish();
 int main(int argc, char **argv)
 {
 	command_line(argc,argv);
-	vm->run(trace<0?0:trace);
+	vm->run(debug_trace<0?0:debug_trace);
     finish();
 	return(0);
 }
@@ -65,11 +65,11 @@ void command_line(int argc, char **argv)
 			continue;
 		}
         else if (!strcmp(argv[index], "-t")) {
-			trace=0;
+			debug_trace=0;
 			++index;
             if ( index < argc && isdigit(*argv[index]) )
             {
-                trace=atoi(argv[index]);
+                debug_trace=atoi(argv[index]);
                 ++index;
             }
 			continue;
@@ -83,7 +83,7 @@ void command_line(int argc, char **argv)
 		exit(1);
 	}
 
-    if ( trace >= 0 )
+    if ( debug_trace >= 0 )
         vm = new trc816;
     else
         vm = debug ? (new dbg816) : (new load816);

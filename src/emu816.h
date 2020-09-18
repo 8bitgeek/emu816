@@ -87,6 +87,9 @@ class emu816
         emu816_addr_t           join(uint8_t b, uint16_t a);
         uint16_t                swap(uint16_t value);
 
+        virtual void            set_stopped(bool stopped)
+                                    { m_stopped = stopped; }
+
    private:
 
         inline void             addPC(uint32_t count) {pc+=count;}

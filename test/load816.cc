@@ -409,7 +409,7 @@ int load816::cb_store_fn(srec_reader_t* srec_state)
 int load816::cb_term_fn(srec_reader_t* srec_state)
 {
     srec_result_t* result = &srec_state->record;
-    // printf( "TM: %08x\n", result->address );
+    //printf( "TM: %08x\n", result->address );
     reset(result->address);
     return 0;
 }

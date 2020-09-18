@@ -90,6 +90,8 @@ void dbg816::banner()
     if ( m_lines != LINES || m_cols != COLS )
     {
         erase();
+        m_lines = LINES;
+        m_cols = COLS;
     }
     mvprintw( LINES-1, 0, "S)tep, R)un, P)uase, Q)uit");    
 }
@@ -110,22 +112,23 @@ void dbg816::dump()
             );
     mvprintw( 2, 0, "PC:%02X:%04X OP:%02X [%s]", pbr, pc, op, opcode_map[op].op );
     mvprintw( 3, 0, "SP:%02X:%04X  D:%02X", 0, sp.w, inherited::load8(sp.w) );
-    mvprintw( 4, 0, "DR:%02X:%04X", 0, dp.w );
-    mvprintw( 5, 0, " Y:%02X:%04X", dbr, y.w );
-    mvprintw( 6, 0, " X:%02X:%04X", dbr, x.w );
+    mvprintw( 4, 0, " A:%02X:%04X", 0, a.w );
+    mvprintw( 5, 0, "DR:%02X:%04X", 0, dp.w );
+    mvprintw( 6, 0, " Y:%02X:%04X", dbr, y.w );
+    mvprintw( 7, 0, " X:%02X:%04X", dbr, x.w );
 }
 
 uint8_t dbg816::load8(emu816_addr_t ea)
 {
     uint8_t data = inherited::load8(ea);
-    mvprintw( 7, 0, "RD:%02X:%04X  D:%02X",ea>>16,ea&0xFFFF,data );
+    mvprintw( 8, 0, "RD:%02X:%04X  D:%02X",ea>>16,ea&0xFFFF,data );
     refresh();
     return data;
 }
 
 void dbg816::store8(emu816_addr_t ea, uint8_t data)
 {
-    mvprintw( 8, 0, "WR:%02X:%04X  D:%02X",ea>>16,ea&0xFFFF,data );
+    mvprintw( 9, 0, "WR:%02X:%04X  D:%02X",ea>>16,ea&0xFFFF,data );
     refresh();
     inherited::store8(ea,data);
 }

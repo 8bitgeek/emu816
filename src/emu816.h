@@ -98,9 +98,9 @@ class emu816
         uint32_t                m_cycles;
 
         void                    pushByte(uint8_t value);
-        void                    pushuint16_t(uint16_t value);
+        void                    pushWord(uint16_t value);
         uint8_t                 pullByte();
-        uint16_t                pulluint16_t();
+        uint16_t                pullWord();
 
         emu816_addr_t am_absl();
         emu816_addr_t am_absx();

@@ -42,6 +42,7 @@ timespec tend;
 void setup_memory();
 void command_line(int argc, char **argv);
 void finish();
+void usage(const char* exec_name);
 
 
 int main(int argc, char **argv)
@@ -75,11 +76,12 @@ void command_line(int argc, char **argv)
 			continue;
 		}
         else if (!strcmp(argv[index], "-?")) {
-			cerr << "Usage: emu816 [-d] [-t [clks]] s19/28-file ..." << endl;
+			usage(argv[0]);
 			exit(0);
 		}
 
 		cerr << "Invalid: option '" << argv[index] << "'" << endl;
+		usage(argv[0]);
 		exit(1);
 	}
 
@@ -101,6 +103,7 @@ void command_line(int argc, char **argv)
 		} while ( index < argc);
 	else {
 		cerr << "No S28 files specified" << endl;
+		usage(argv[0]);
 		exit(1);
 	}
     
@@ -135,4 +138,9 @@ void finish()
 
     if ( vm )
         delete vm;
+}
+
+void usage(const char* exec_name)
+{
+	fprintf( stderr, "Usage: %s [-d] [-t [clks]] <somefile>.s19\n", exec_name );
 }

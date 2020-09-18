@@ -56,6 +56,7 @@ void trc816::dump()
             );
     printf( "PC:%02X:%04X OP:%02X [%s] ", pbr, pc, op, opcode_map[op].op );
     printf( "SP:%02X:%04X  D:%02X ", 0, sp.w, inherited::load8(sp.w) );
+    printf( " A:%02X:%04X ", 0, a.w );
     printf( "DR:%02X:%04X ", 0, dp.w );
     printf( " Y:%02X:%04X ", dbr, y.w );
     printf( " X:%02X:%04X\n", dbr, x.w );

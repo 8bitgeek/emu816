@@ -21,6 +21,7 @@
 #include <emu816.h>
 
 emu816::emu816()
+: m_cycles(0)
 { 
 }
 
@@ -65,23 +66,33 @@ uint16_t emu816::swap(uint16_t value)
 }
 
 // Reset the state of emulator
-void emu816::reset()
+void emu816::reset(uint32_t entry_point)
 {
 	e = 1;
 	pbr = 0x00;
 	dbr = 0x00;
 	dp.w = 0x0000;
 	sp.w = 0x0100;
-	pc = load16(0xfffc);
+    if ( entry_point != EMU816_INVALID_PC )
+        pc = entry_point;
+    else
+	    pc = load16(0xfffc);
 	p.b = 0x34;
-
 	m_stopped = false;
+    m_cycles = 0;
 }
 
-void emu816::run()
+void emu816::run(uint32_t cycles)
 {
     while (!stopped ())
-		step();    
+    {
+		step();
+        if ( cycles > 0 )
+        {
+            if ( m_cycles >= cycles)
+                m_stopped=true;
+        }
+    }    
 }
 
 void emu816::stop()

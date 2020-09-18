@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2020 Mike Sharkey <mike@pikeaero.com>
+ * Copyright (c) 2020 Mike Sharkey <mike@8bitgeek.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the "Software"),
@@ -28,26 +28,33 @@ using namespace std;
 #include <string.h>
 #include <time.h>
 #include <dbg816.h>
+#include <trc816.h>
 
 #define	RAM_SIZE	(512 * 1024)
 #define MEM_MASK	(512 * 1024L - 1)
 
+int trace=(-1);
 bool debug=false;
 load816* vm=NULL;
+timespec tstart;
+timespec tend;
 
-// Initialise the vm
-inline void setup()
-{
-	vm->setMemory(MEM_MASK, RAM_SIZE, NULL);
-}
+void setup_memory();
+void command_line(int argc, char **argv);
+void finish();
 
-//==============================================================================
-// Command Handler
-//------------------------------------------------------------------------------
 
 int main(int argc, char **argv)
 {
-	int	index = 1;
+	command_line(argc,argv);
+	vm->run(trace<0?0:trace);
+    finish();
+	return(0);
+}
+
+void command_line(int argc, char **argv)
+{
+    int index=1; 
 
 	while (index < argc) {
 		if (argv[index][0] != '-') break;
@@ -57,18 +64,31 @@ int main(int argc, char **argv)
 			++index;
 			continue;
 		}
-
-		if (!strcmp(argv[index], "-?")) {
-			cerr << "Usage: emu816 [-d] s19/28-file ..." << endl;
-			return (1);
+        else if (!strcmp(argv[index], "-t")) {
+			trace=0;
+			++index;
+            if ( index < argc && isdigit(*argv[index]) )
+            {
+                trace=atoi(argv[index]);
+                ++index;
+            }
+			continue;
+		}
+        else if (!strcmp(argv[index], "-?")) {
+			cerr << "Usage: emu816 [-d] [-t [clks]] s19/28-file ..." << endl;
+			exit(0);
 		}
 
 		cerr << "Invalid: option '" << argv[index] << "'" << endl;
-		return (1);
+		exit(1);
 	}
 
-    vm = debug ? (new dbg816) : (new load816);
-	setup();
+    if ( trace >= 0 )
+        vm = new trc816;
+    else
+        vm = debug ? (new dbg816) : (new load816);
+
+	setup_memory();
 
 	if (index < argc)
 		do {
@@ -81,20 +101,23 @@ int main(int argc, char **argv)
 		} while ( index < argc);
 	else {
 		cerr << "No S28 files specified" << endl;
-		return (1);
+		exit(1);
 	}
+    
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tstart);
+}
+ 
+void setup_memory()
+{
+	vm->setMemory(MEM_MASK, RAM_SIZE, NULL);
+}
 
-	timespec start, end;
+void finish()
+{
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tend);
 
-	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-
-	vm->reset();
-	vm->run();
-
-	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
-
-	double secs = (end.tv_sec + end.tv_nsec / 1000000000.0)
-		    - (start.tv_sec + start.tv_nsec / 1000000000.0);
+	double secs = (tend.tv_sec + tend.tv_nsec / 1000000000.0)
+		    - (tstart.tv_sec + tstart.tv_nsec / 1000000000.0);
 
 	double speed = vm->cycles() / secs;
 
@@ -110,7 +133,6 @@ int main(int argc, char **argv)
 	}
 	cout << endl;
 
-    delete vm;
-
-	return(0);
+    if ( vm )
+        delete vm;
 }

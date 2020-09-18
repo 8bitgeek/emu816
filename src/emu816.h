@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#define EMU816_INVALID_PC   0xFFFFFFFF
+
 typedef uint32_t	    emu816_addr_t;
 typedef uint8_t         emu816_bit_t;
 
@@ -36,9 +38,9 @@ class emu816
         emu816();
         virtual ~emu816();
 
-        virtual void            reset();
+        virtual void            reset(uint32_t entry_point=EMU816_INVALID_PC);
         virtual void            step();
-        virtual void            run();
+        virtual void            run(uint32_t cycles=0);
         virtual void            stop();
 
         uint32_t                cycles();

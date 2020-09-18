@@ -19,35 +19,30 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
  * DEALINGS IN THE SOFTWARE.
  ****************************************************************************/
-#ifndef VM816_H
-#define VM816_H
+#ifndef TRC816_H
+#define TRC816_H
 
-#include <emu816.h>
+#include <load816.h>
+#include <stdlib.h>
+#include <stdint.h>
 
-class vm816 : public emu816
+class trc816 : public load816
 {
     public:
 
-        vm816();
-        virtual ~vm816();
+        trc816();
+        virtual ~trc816();
 
-        // Define the memory areas and sizes
-        virtual void            setMemory (emu816_addr_t memMask, emu816_addr_t ramSize, const uint8_t *pROM);
-        virtual void            setMemory (emu816_addr_t memMask, emu816_addr_t ramSize, uint8_t *pRAM, const uint8_t *pROM);
+        virtual void        step();
 
-        virtual uint8_t         load8(emu816_addr_t ea);
-        virtual void            store8(emu816_addr_t ea, uint8_t data);
-        virtual uint16_t        load16(emu816_addr_t ea);
-        virtual void            store16(emu816_addr_t ea, uint16_t data);
-        virtual emu816_addr_t   load24(emu816_addr_t ea);
+        // virtual uint8_t     load8(emu816_addr_t ea);
+        // virtual void        store8(emu816_addr_t ea, uint8_t data);
 
     private:
 
-        emu816_addr_t		    memMask;		// The address mask pattern
-        emu816_addr_t		    ramSize;		// The amount of RAM
-
-        uint8_t*                pRAM;			// Base of RAM memory array
-        const uint8_t*          pROM;			// Base of ROM memory array
+        void                dump();
 
 };
-#endif
+
+#endif 
+

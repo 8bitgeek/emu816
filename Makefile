@@ -1,12 +1,15 @@
-TARGET=dummy
+TARGET=libemu816.a
 
-$(TARGET):
-	(cd libs19 && make)
-	(cd src && make)
-	(cd test && make)
+CPPFLAGS+=-O2 -I./
+
+all:	$(TARGET)
 
 clean:
-	(cd libs19 && make clean)
-	(cd src && make clean)
-	(cd test && make clean)
+	$(RM) *.o
+	$(RM) $(TARGET)
 
+$(TARGET):	emu816.o
+	ar rcs $(TARGET)  emu816.o 
+
+emu816.o: \
+	emu816.cc emu816.h 

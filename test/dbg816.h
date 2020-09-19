@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2020 Mike Sharkey <mike@pikeaero.com>
+ * Copyright (c) 2020 Mike Sharkey <mike@8bitgeek.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the "Software"),
@@ -40,19 +40,12 @@ class dbg816 : public load816
 
     private:
 
-        typedef struct _opcode_
-        {
-            const char*     op;
-            uint8_t         sz;
-        } opcode_t;
-
         void                dump();
         void                csi();
         void                home();
         void                clear();
         void                move(uint8_t x, uint8_t y);
 
-        static opcode_t     opcode_map[];
 };
 
 #endif 

@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2020 Mike Sharkey <mike@pikeaero.com>
+ * Copyright (c) 2020 Mike Sharkey <mike@8bitgeek.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the "Software"),
@@ -41,6 +41,16 @@ class load816 : public vm816
         int                 cb_meta_fn(srec_reader_t* srec_state);
         int                 cb_store_fn(srec_reader_t* srec_state);
         int                 cb_term_fn(srec_reader_t* srec_state);
+
+    protected:
+
+        typedef struct _opcode_
+        {
+            const char*     op;
+            uint8_t         sz;
+        } opcode_t;
+
+        static opcode_t     opcode_map[];
 
     private:
 

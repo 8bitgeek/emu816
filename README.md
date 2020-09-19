@@ -7,26 +7,16 @@ Forked from https://github.com/andrew-jacobs/emu816
 Prerequisies:
 
 * GCC
-* ncurses-dev
 
 ```
 git clone https://github.com/8bitgeek/libemu816.git
 cd libemu816
-git submodule update --init --recursive
-git pull --recurse-submodules
 make
 ```
 
-## Running a test
-
-* NOTE: The contents of 'test' are currently transient, a place holder for verification tests.
-
-```
-cd test
-./run816 simple.s28
-```
-
 ## Implementing application memory model
+
+Refer to "run816" for usage example: https://github.com/8bitgeek/run816
 
 The application memory map may be accomplished by overloading the following virtual methods.
 

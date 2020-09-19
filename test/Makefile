@@ -1,5 +1,5 @@
 
-CPPFLAGS+=-ggdb -I./ -I../src -I../libs19
+CPPFLAGS+=-O2 -I./ -I../src -I../libs19
 LIBEMU816=../src/libemu816.a
 LIBS19=../libs19/libs19.a
 

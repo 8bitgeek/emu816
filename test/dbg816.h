@@ -25,6 +25,7 @@
 #include <load816.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <ncurses.h>
 
 class dbg816 : public load816
 {
@@ -38,13 +39,31 @@ class dbg816 : public load816
         virtual uint8_t     load8(emu816_addr_t ea);
         virtual void        store8(emu816_addr_t ea, uint8_t data);
 
+    protected:
+
+        typedef enum {
+            dbg_pause=0,
+            dbg_step,
+            dbg_run,
+            dbg_quit
+        } debug_state_t;
+
+        void                set_debug_state(debug_state_t dbg_state)
+                                { m_debug_state = dbg_state; }
+
+        debug_state_t       get_debug_state()
+                                { return m_debug_state; }
+
+        virtual void        input();
+        virtual void        banner();
+
     private:
 
         void                dump();
-        void                csi();
-        void                home();
-        void                clear();
-        void                move(uint8_t x, uint8_t y);
+        
+        debug_state_t       m_debug_state;
+        int                 m_lines;
+        int                 m_cols;
 
 };
 

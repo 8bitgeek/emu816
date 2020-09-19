@@ -19,6 +19,7 @@
 // http://creativecommons.org/licenses/by-nc-sa/4.0/
 //------------------------------------------------------------------------------
 #include <emu816.h>
+#include <stdio.h>
 
 emu816::emu816()
 : m_cycles(0)
@@ -72,7 +73,7 @@ void emu816::reset(uint32_t entry_point)
 	pbr = 0x00;
 	dbr = 0x00;
 	dp.w = 0x0000;
-	sp.w = 0x0100;
+	sp.w = 0x01FF;
     if ( entry_point != EMU816_INVALID_PC )
         pc = entry_point;
     else
@@ -402,7 +403,7 @@ void emu816::pushByte(uint8_t value)
 }
 
 // Push a word on the stack
-void emu816::pushuint16_t(uint16_t value)
+void emu816::pushWord(uint16_t value)
 {
     pushByte(hi(value));
     pushByte(lo(value));
@@ -420,7 +421,7 @@ uint8_t emu816::pullByte()
 }
 
 // Pull a word from the stack
-uint16_t emu816::pulluint16_t()
+uint16_t emu816::pullWord()
 {
     uint8_t	l = pullByte();
     uint8_t	h = pullByte();
@@ -951,7 +952,7 @@ void emu816::op_brk(emu816_addr_t ea)
 {
 
     if (e) {
-        pushuint16_t(pc);
+        pushWord(pc);
         pushByte(p.b | 0x10);
 
         p.f_i = 1;
@@ -963,7 +964,7 @@ void emu816::op_brk(emu816_addr_t ea)
     }
     else {
         pushByte(pbr);
-        pushuint16_t(pc);
+        pushWord(pc);
         pushByte(p.b);
 
         p.f_i = 1;
@@ -1059,7 +1060,7 @@ void emu816::op_cop(emu816_addr_t ea)
 {
 
     if (e) {
-        pushuint16_t(pc);
+        pushWord(pc);
         pushByte(p.b);
 
         p.f_i = 1;
@@ -1067,11 +1068,13 @@ void emu816::op_cop(emu816_addr_t ea)
         pbr = 0;
 
         pc = load16(0xfff4);
+        // fprintf(stderr,"0xfff4=%04X\n",pc);
+
         m_cycles += 7;
     }
     else {
         pushByte(pbr);
-        pushuint16_t(pc);
+        pushWord(pc);
         pushByte(p.b);
 
         p.f_i = 1;
@@ -1079,6 +1082,8 @@ void emu816::op_cop(emu816_addr_t ea)
         pbr = 0;
 
         pc = load16(0xffe4);
+        // fprintf(stderr,"0xffe4=%04X\n",pc);
+
         m_cycles += 8;
     }
 }
@@ -1254,7 +1259,7 @@ void emu816::op_jsl(emu816_addr_t ea)
 {
 
     pushByte(pbr);
-    pushuint16_t(pc - 1);
+    pushWord(pc - 1);
 
     pbr = lo(ea >> 16);
     pc = (uint16_t)ea;
@@ -1264,7 +1269,7 @@ void emu816::op_jsl(emu816_addr_t ea)
 void emu816::op_jsr(emu816_addr_t ea)
 {
 
-    pushuint16_t(pc - 1);
+    pushWord(pc - 1);
 
     pc = (uint16_t)ea;
     m_cycles += 4;
@@ -1390,21 +1395,21 @@ void emu816::op_ora(emu816_addr_t ea)
 void emu816::op_pea(emu816_addr_t ea)
 {
 
-    pushuint16_t(load16(ea));
+    pushWord(load16(ea));
     m_cycles += 5;
 }
 
 void emu816::op_pei(emu816_addr_t ea)
 {
 
-    pushuint16_t(load16(ea));
+    pushWord(load16(ea));
     m_cycles += 6;
 }
 
 void emu816::op_per(emu816_addr_t ea)
 {
 
-    pushuint16_t((uint16_t) ea);
+    pushWord((uint16_t) ea);
     m_cycles += 6;
 }
 
@@ -1416,7 +1421,7 @@ void emu816::op_pha(emu816_addr_t ea)
         m_cycles += 3;
     }
     else {
-        pushuint16_t(a.w);
+        pushWord(a.w);
         m_cycles += 4;
     }
 }
@@ -1431,7 +1436,7 @@ void emu816::op_phb(emu816_addr_t ea)
 void emu816::op_phd(emu816_addr_t ea)
 {
 
-    pushuint16_t(dp.w);
+    pushWord(dp.w);
     m_cycles += 4;
 }
 
@@ -1457,7 +1462,7 @@ void emu816::op_phx(emu816_addr_t ea)
         m_cycles += 3;
     }
     else {
-        pushuint16_t(x.w);
+        pushWord(x.w);
         m_cycles += 4;
     }
 }
@@ -1470,7 +1475,7 @@ void emu816::op_phy(emu816_addr_t ea)
         m_cycles += 3;
     }
     else {
-        pushuint16_t(y.w);
+        pushWord(y.w);
         m_cycles += 4;
     }
 }
@@ -1483,7 +1488,7 @@ void emu816::op_pla(emu816_addr_t ea)
         m_cycles += 4;
     }
     else {
-        setnz_w(a.w = pulluint16_t());
+        setnz_w(a.w = pullWord());
         m_cycles += 5;
     }
 }
@@ -1498,7 +1503,7 @@ void emu816::op_plb(emu816_addr_t ea)
 void emu816::op_pld(emu816_addr_t ea)
 {
 
-    setnz_w(dp.w = pulluint16_t());
+    setnz_w(dp.w = pullWord());
     m_cycles += 5;
 }
 
@@ -1533,7 +1538,7 @@ void emu816::op_plx(emu816_addr_t ea)
         m_cycles += 4;
     }
     else {
-        setnz_w(x.w = pulluint16_t());
+        setnz_w(x.w = pullWord());
         m_cycles += 5;
     }
 }
@@ -1546,7 +1551,7 @@ void emu816::op_ply(emu816_addr_t ea)
         m_cycles += 4;
     }
     else {
-        setnz_w(y.w = pulluint16_t());
+        setnz_w(y.w = pullWord());
         m_cycles += 5;
     }
 }
@@ -1646,12 +1651,12 @@ void emu816::op_rti(emu816_addr_t ea)
 
     if (e) {
         p.b = pullByte();
-        pc = pulluint16_t();
+        pc = pullWord();
         m_cycles += 6;
     }
     else {
         p.b = pullByte();
-        pc = pulluint16_t();
+        pc = pullWord();
         pbr = pullByte();
         m_cycles += 7;
     }
@@ -1661,7 +1666,7 @@ void emu816::op_rti(emu816_addr_t ea)
 void emu816::op_rtl(emu816_addr_t ea)
 {
 
-    pc = pulluint16_t() + 1;
+    pc = pullWord() + 1;
     pbr = pullByte();
     m_cycles += 6;
 }
@@ -1669,7 +1674,7 @@ void emu816::op_rtl(emu816_addr_t ea)
 void emu816::op_rts(emu816_addr_t ea)
 {
 
-    pc = pulluint16_t() + 1;
+    pc = pullWord() + 1;
     m_cycles += 6;
 }
 

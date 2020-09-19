@@ -87,6 +87,13 @@ class emu816
         emu816_addr_t           join(uint8_t b, uint16_t a);
         uint16_t                swap(uint16_t value);
 
+        virtual void            set_stopped(bool stopped)
+                                    { m_stopped = stopped; }
+
+        virtual void op_brk(emu816_addr_t ea);
+        virtual void op_cop(emu816_addr_t ea);
+        virtual void op_rti(emu816_addr_t ea);
+
    private:
 
         inline void             addPC(uint32_t count) {pc+=count;}
@@ -95,9 +102,9 @@ class emu816
         uint32_t                m_cycles;
 
         void                    pushByte(uint8_t value);
-        void                    pushuint16_t(uint16_t value);
+        void                    pushWord(uint16_t value);
         uint8_t                 pullByte();
-        uint16_t                pulluint16_t();
+        uint16_t                pullWord();
 
         emu816_addr_t am_absl();
         emu816_addr_t am_absx();
@@ -147,7 +154,6 @@ class emu816
         void op_bne(emu816_addr_t ea);
         void op_bpl(emu816_addr_t ea);
         void op_bra(emu816_addr_t ea);
-        void op_brk(emu816_addr_t ea);
         void op_brl(emu816_addr_t ea);
         void op_bvc(emu816_addr_t ea);
         void op_bvs(emu816_addr_t ea);
@@ -156,7 +162,6 @@ class emu816
         void op_cli(emu816_addr_t ea);
         void op_clv(emu816_addr_t ea);
         void op_cmp(emu816_addr_t ea);
-        void op_cop(emu816_addr_t ea);
         void op_cpx(emu816_addr_t ea);
         void op_cpy(emu816_addr_t ea);
         void op_dec(emu816_addr_t ea);
@@ -202,7 +207,6 @@ class emu816
         void op_rola(emu816_addr_t ea);
         void op_ror(emu816_addr_t ea);
         void op_rora(emu816_addr_t ea);
-        void op_rti(emu816_addr_t ea);
         void op_rtl(emu816_addr_t ea);
         void op_rts(emu816_addr_t ea);
         void op_sbc(emu816_addr_t ea);
@@ -230,7 +234,7 @@ class emu816
         void op_tya(emu816_addr_t ea);
         void op_tyx(emu816_addr_t ea);
         void op_wai(emu816_addr_t ea);
-        void op_wdm(emu816_addr_t ea);
+        virtual void op_wdm(emu816_addr_t ea);
         void op_xba(emu816_addr_t ea);
         void op_xce(emu816_addr_t ea);
 };

@@ -2,7 +2,7 @@
 
 Forked from https://github.com/andrew-jacobs/emu816
 
-## Compiling
+# Compiling
 
 Prerequisies:
 
@@ -13,6 +13,13 @@ git clone https://github.com/8bitgeek/libemu816.git
 cd libemu816
 make
 ```
+
+# Install 
+```
+sudo make install
+```
+
+
 
 ## Implementing application memory model
 
